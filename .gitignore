@@ -1,0 +1,12 @@
+# Ignore extension-less files
+*
+!Makefile
+!/**/
+!*.*
+
+# Lex and Yacc
+lex.yy.c
+nutshparser.tab.*
+
+# Mac
+.DS_Store
