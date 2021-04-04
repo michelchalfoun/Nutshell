@@ -1,6 +1,5 @@
 %{
 #include "nutshparser.tab.h"
-#include "global.h"
 #include <string.h>
 
 %}
