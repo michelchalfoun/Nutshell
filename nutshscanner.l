@@ -19,6 +19,9 @@ ANYCHAR             [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*
 [ ]		            { }
 bye                 { return BYE; }
 cd		            { return CD;}
+setenv		        { return SETENV;}
+printenv		    { return PRINTENV;}
+unsetenv		    { return UNSETENV;}
 "\n"		        { return END; }
 [\"]                { BEGIN(string_condition); }
 {CHAR}+             { yylval.string = strdup(yytext); return WORD; }
