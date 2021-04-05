@@ -12,3 +12,6 @@ int handleUnsetAlias(string name);
 
 bool ifAlias(char* name);
 const char* subAlias(char* name);
+
+bool ifEnv(char* name);
+const char* subEnv(char* name);
