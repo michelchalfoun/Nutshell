@@ -112,6 +112,20 @@ const char* subAlias(char* name){
     return name;
 }
 
+bool ifEnv(char* name){
+    if (environment.find(name) != environment.end()){
+        return 1;
+    }
+    return 0;
+}
+
+const char* subEnv(char* name){
+    if (environment.find(name) != environment.end()){
+        return environment[name].c_str();
+    }
+    return name;
+}
+
 int main()
 {
     getcwd(cwd, sizeof(cwd));
