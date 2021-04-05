@@ -8,16 +8,21 @@
 int yylex(void);
 int yyerror(char *s);
 int runCD(char* arg);
+
 int runSETENV(char* name, char* value);
 int runPRINTENV();
 int runUNSETENV(char* name);
+
+int runSetAlias(char *name, char *value);
+int runShowAlias();
+int runUnsetAlias(char *name);
 %}
 
 %union {char *string;}
 
 %start cmd_line
 %token <string> BYE END STRING CD WORD
-%token <command> SETENV PRINTENV UNSETENV
+%token <command> SETENV PRINTENV UNSETENV ALIAS UNALIAS
 %error-verbose
 
 %%
@@ -27,6 +32,9 @@ cmd_line    :
   | SETENV WORD WORD END        {runSETENV($2, $3); return 1;}
   | PRINTENV END        			  {runPRINTENV(); return 1;}
   | UNSETENV WORD END       		{runUNSETENV($2); return 1;}
+  | ALIAS WORD WORD END		      {runSetAlias($2, $3); return 1;}
+  | ALIAS END		                {runShowAlias(); return 1;}
+  | UNALIAS WORD END		        {runUnsetAlias($2); return 1;}
 %%
 
 int runCD(char* arg) {
@@ -43,6 +51,18 @@ int runPRINTENV() {
 
 int runUNSETENV(char* name) {
 	return handleUNSETENV(name);
+}
+
+int runSetAlias(char *name, char *value) {
+  return handleSetAlias(name, value);
+}
+
+int runShowAlias() {
+  return handleShowAlias();
+}
+
+int runUnsetAlias(char *name) {
+  return handleUnsetAlias(name);
 }
 
 int yyerror(char *s) {

@@ -7,6 +7,7 @@
 
 char cwd[PATH_MAX];
 extern std::map<std::string, std::string> environment;
+extern std::map<std::string, std::string> aliases;
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
