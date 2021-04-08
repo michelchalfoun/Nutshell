@@ -10,7 +10,7 @@
 %x envVar_condition
 
 CHAR                [.A-Za-z0-9!\/_-][.A-Za-z0-9!\/_-]*
-ANYCHAR             [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -]*
+ANYCHAR             [^"]*
 
 %%
 
@@ -42,6 +42,7 @@ unalias             { return UNALIAS; }
 "\n"		        { return END; }
 [\"]                { BEGIN(string_condition); }
 "${"                { BEGIN(envVar_condition); }
+"~"                 { return TILDE; }
 {CHAR}+             { 
                         if(ifAlias(yytext)){
                             char *yycopy = strdup( subAlias(yytext) );
