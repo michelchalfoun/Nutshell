@@ -3,6 +3,8 @@
 using namespace std;
 
 int handleCD(string newDir);
+int handleCDHome();
+int handleCDTilde(string user);
 int handleSETENV(string name, string value);
 int handlePRINTENV();
 int handleUNSETENV(string name);

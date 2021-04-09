@@ -5,12 +5,15 @@
 #include "global.h"
 #include "commands.h"
 #include <unistd.h>
+#include <pwd.h>
 #include <iostream>
 #include <map>
+#include <vector>
 
 using namespace std;
 
 char *getcwd(char *buf, size_t size);
+
 int yyparse();
 
 map<string, string> environment;
@@ -19,20 +22,41 @@ map<string, string> aliases;
 int handleCD(string newDir){
     char arr[FILENAME_MAX];
     string curDir = getcwd(arr, sizeof(arr));
-    
     string targetDir = curDir + "/" + newDir;
+
     if (newDir[0] == '/') { // arg is relative path
 		targetDir = newDir;
 	}
 
     if(chdir(targetDir.c_str()) == 0) {
-        environment["PROMPT"] = targetDir;
+        environment["PROMPT"] = getcwd(arr, sizeof(arr));
         return 1;
 		}
 	else {
         printf("Directory not found\n");
         return 1;
 	}
+}
+
+int handleCDHome() {
+    char arr[FILENAME_MAX];
+    string curDir = getcwd(arr, sizeof(arr));
+    environment["PROMPT"] = getenv("HOME");
+    chdir(getenv("HOME"));
+    return 1;
+}
+
+int handleCDTilde(string user) {
+    struct passwd* pwd;
+    pwd = getpwnam(user.c_str());
+    if (pwd) {
+        environment["PROMPT"] = pwd->pw_dir;
+        chdir(getenv("HOME"));
+    } else {
+        printf("User not found\n");
+    }
+
+    return 1;
 }
 
 int handleSETENV(string name, string value){
