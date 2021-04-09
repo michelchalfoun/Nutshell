@@ -6,15 +6,24 @@
 #include "commands.h"
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
 #include <map>
+#include <vector>
 
 using namespace std;
 
 char *getcwd(char *buf, size_t size);
+void scan_string(const char* str);
 int yyparse();
 
 map<string, string> environment;
 map<string, string> aliases;
+
+vector<string> curArgs;
+
+void handleBYE(){
+    return(exit(1));
+}
 
 int handleCD(string newDir){
     char arr[FILENAME_MAX];
@@ -124,6 +133,72 @@ const char* subEnv(char* name){
         return environment[name].c_str();
     }
     return name;
+}
+
+void tokenize(string const &str, const char delim, vector<string> &out)
+{
+    size_t start;
+    size_t end = 0;
+ 
+    while ((start = str.find_first_not_of(delim, end)) != string::npos)
+    {
+        end = str.find(delim, start);
+        out.push_back(str.substr(start, end - start));
+    }
+}
+
+int handleCommand(string name){
+    pid_t p1 = fork(), parentpid;
+    int status = 0;
+    int execRes = 0;
+
+    char **argArray;
+    int argArrayLength = 0;
+
+    vector<string> paths;
+
+    argArrayLength = 0;
+    argArray = (char**) malloc((curArgs.size() + 2) * sizeof(char*));
+    argArray[0] = (char *) malloc((name.length()) * sizeof(char));
+    strcpy(argArray[0], name.c_str());
+    argArrayLength++;
+    for (int i = 1; i < (curArgs.size() + 1); i++){
+        argArray[i] = (char *) malloc((curArgs[i - 1].length()) * sizeof(char));
+        strcpy(argArray[i], curArgs[i - 1].c_str());
+        argArrayLength++;
+    }
+    argArray[curArgs.size() + 1] = NULL;
+    tokenize(environment["PATH"], ':', paths);
+
+    if(p1 < 0)
+    {
+        printf("error...");
+    }
+    else if(p1 > 0)
+    {
+        while ((parentpid = wait(&status)) > 0);
+        for (int i = 0; i < argArrayLength; i++){
+            free(argArray[i]);
+            argArray[i] = NULL;
+        }
+        free(argArray);
+        argArray = NULL;
+        curArgs.clear();         
+    }
+    else
+    {
+        for (int i = 0; i < paths.size(); i++){
+            execRes = execv((paths[i] + "/" + name).c_str(), argArray);
+        }
+        printf("Command not found\n");
+        exit(0);
+    }   
+    return 1;
+}
+
+int handleArgs(string word){
+    curArgs.push_back(word);
+    return 1;
 }
 
 int main()
