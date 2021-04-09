@@ -1,6 +1,6 @@
 %{
 #pragma GCC diagnostic ignored "-Wdeprecated-register" 
-#pragma GCC diagnostic ignored "-Wdeprecated" 
+
 #include "nutshparser.tab.h"
 #include "commands.h"
 #include <string.h>
