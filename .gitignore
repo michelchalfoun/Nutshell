@@ -10,3 +10,4 @@ nutshparser.tab.*
 
 # Mac
 .DS_Store
+.vscode

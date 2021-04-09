@@ -60,6 +60,7 @@ unalias             { first = false; return UNALIAS; }
 \n		            { first = true; return END; }
 [\"]                { BEGIN(string_condition); }
 "${"                { first = false; BEGIN(envVar_condition); }
+"~"                 { return TILDE; }
 {CHAR}+             { 
                         if(ifAlias(yytext) && first){
                             first = false;
