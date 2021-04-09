@@ -1,4 +1,6 @@
 %{
+#pragma GCC diagnostic ignored "-Wwritable-strings"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -49,7 +51,7 @@ cmd_line    :
   | ALIAS WORD WORD END		      {runSetAlias($2, $3); return 1;}
   | ALIAS END		                {runShowAlias(); return 1;}
   | UNALIAS WORD END		        {runUnsetAlias($2); return 1;}
-  | WORD END                    {runCommand($1); return 1;}
+  /* | WORD END                    {runCommand($1); return 1;} */
   | WORD args END               {runCommand($1); return 1;}
 
 args:
