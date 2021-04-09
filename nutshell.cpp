@@ -37,7 +37,6 @@ int handleCD(string newDir){
 	}
 
     if(chdir(targetDir.c_str()) == 0) {
-        environment["PROMPT"] = getcwd(arr, sizeof(arr));
         return 1;
 		}
 	else {
@@ -47,10 +46,7 @@ int handleCD(string newDir){
 }
 
 int handleCDHome() {
-    char arr[FILENAME_MAX];
-    string curDir = getcwd(arr, sizeof(arr));
-    environment["PROMPT"] = getenv("HOME");
-    chdir(getenv("HOME"));
+    chdir(environment["HOME"].c_str());
     return 1;
 }
 
@@ -59,7 +55,7 @@ int handleCDTilde(string user) {
     pwd = getpwnam(user.c_str());
     if (pwd) {
         environment["PROMPT"] = pwd->pw_dir;
-        chdir(getenv("HOME"));
+        chdir(pwd->pw_dir);
     } else {
         printf("User not found\n");
     }
@@ -229,13 +225,16 @@ int main()
     getcwd(cwd, sizeof(cwd));
 
     environment["PWD"] = cwd;
-    environment["HOME"] = cwd;
+    environment["HOME"] = getenv("HOME");
     environment["PROMPT"] = cwd;
-    environment["PATH"] = ".:/bin";
+    environment["PATH"] = ".:/bin:~/bin";
 
     system("clear");
     while(1)
     {
+        getcwd(cwd, sizeof(cwd));
+        environment["PWD"] = cwd;
+        environment["PROMPT"] = cwd;
         printf("%s [%s] >> %s", BOLDCYAN, environment["PROMPT"].c_str(), RESET);
         yyparse();
     }
