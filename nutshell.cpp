@@ -14,7 +14,6 @@
 using namespace std;
 
 char *getcwd(char *buf, size_t size);
-void scan_string(const char* str);
 int yyparse();
 
 map<string, string> environment;
