@@ -12,6 +12,15 @@ extern std::map<std::string, std::string> aliases;
 
 extern std::vector<std::string> curArgs;
 
+struct CommandInfo{
+    std::string name;
+    std::vector<std::string> args;
+    std::string in = "";
+    std::string out = "";
+    bool appendOutput = false;
+};
+extern std::vector<CommandInfo> cmdTable;
+
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
 #define RED     "\033[31m"      /* Red */

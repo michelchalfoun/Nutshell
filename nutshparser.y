@@ -26,6 +26,13 @@ int runShowAlias();
 int runUnsetAlias(char *name);
 
 int runCommand(char *name);
+int runCommandTable();
+
+int fillArgs(char *name);
+int fillCommands(char *name);
+
+int runInRed(char *name);
+int runOutRed(char *name, bool append);
 
 extern void scan_string(const char* str);
 %}
@@ -35,15 +42,15 @@ extern void scan_string(const char* str);
 
 %start cmd_line
 %token <string> BYE END STRING CD WORD TILDE
-%token <command> SETENV PRINTENV UNSETENV ALIAS UNALIAS
+%token <command> SETENV PRINTENV UNSETENV ALIAS UNALIAS PIPE LESSTHAN GREATERTHAN
 %error-verbose
 
 %%
 cmd_line    :
 	BYE END 		                  {runBYE(); return 1; }
   | CD END                      {runCDHome(); return 1;}
-  | CD TILDE END                {runCDHome(); return 1;}
-  | CD TILDE WORD END           {runCDTilde($3); return 1;}
+  /* | CD TILDE END                {runCDHome(); return 1;}
+  | CD TILDE WORD END           {runCDTilde($3); return 1;} */
   | CD WORD END        			    {runCD($2); return 1;}
   | SETENV WORD WORD END        {runSETENV($2, $3); return 1;}
   | PRINTENV END        			  {runPRINTENV(); return 1;}
@@ -51,14 +58,29 @@ cmd_line    :
   | ALIAS WORD WORD END		      {runSetAlias($2, $3); return 1;}
   | ALIAS END		                {runShowAlias(); return 1;}
   | UNALIAS WORD END		        {runUnsetAlias($2); return 1;}
-  /* | WORD END                    {runCommand($1); return 1;} */
-  | WORD args END               {runCommand($1); return 1;}
+  | cmd pipCmds iRed oRed END   {runCommandTable(); return 1;}
+
+iRed:
+  | LESSTHAN WORD                {runInRed($2);}
+
+oRed:
+  | GREATERTHAN WORD             {runOutRed($2, false);}
+  | GREATERTHAN GREATERTHAN WORD {runOutRed($3, true);}
+
+pipCmds:
+  | pipCmds pipCmd              {}
+
+pipCmd:
+  PIPE cmd                      {}
+
+cmd:
+  | WORD args                   {fillCommands($1);}
 
 args:
   | args arg                    {}
 
 arg:
-  WORD                          {handleArgs($1)}
+  WORD                          {fillArgs($1)}
 
 %%
 
@@ -103,8 +125,28 @@ int runUnsetAlias(char *name) {
   return handleUnsetAlias(name);
 }
 
-int runCommand(char *name) {
+/* int runCommand(char *name) {
   return handleCommand(name);
+} */
+
+int runCommandTable(){
+  return handleCommandTable();
+}
+
+int fillArgs(char *name){
+  return handleArgs(name);
+}
+
+int fillCommands(char *name){
+  return handleCommands(name);
+}
+
+int runInRed(char *name){
+  return handleInRed(name);
+}
+
+int runOutRed(char *name, bool append){
+  return handleOutRed(name, append);
 }
 
 int yyerror(char *s) {

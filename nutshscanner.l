@@ -23,13 +23,13 @@ ANYCHAR             [^"]*
 %%
 
 
-<string_condition>{ANYCHAR}+       { 
+<string_condition>{ANYCHAR}+    { 
                                     if(ifAlias(yytext) && first){
                                         first = false;
-                                        char *yycopy = strdup( subAlias(yytext) );
+                                        char *yycopy = strdup(subAlias(yytext));
                                             for ( int i = strlen(subAlias(yytext)) - 1; i >= 0; --i )
                                                 unput( yycopy[i] );
-                                            free( yycopy );
+                                            free(yycopy);
                                     }else{
                                         first = false;
                                         yylval.string = strdup(yytext); 
@@ -40,10 +40,10 @@ ANYCHAR             [^"]*
 
 <envVar_condition>{CHAR}+       { 
                                     if(ifEnv(yytext)){
-                                        char *yycopy = strdup( subEnv(yytext) );
+                                        char *yycopy = strdup(subEnv(yytext));
                                             for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
                                                 unput( yycopy[i] );
-                                            free( yycopy );
+                                            free(yycopy);
                                     }else{
                                         yylval.string = strdup(yytext); 
                                         return WORD; 
@@ -62,7 +62,9 @@ unalias             { first = false; return UNALIAS; }
 \n		            { first = true; return END; }
 [\"]                { BEGIN(string_condition); }
 "${"                { first = false; BEGIN(envVar_condition); }
-"~"                 { return TILDE; }
+"|"                 { first = false; return PIPE; }
+"<"                 { first = false; return LESSTHAN; }
+">"                 { first = false; return GREATERTHAN; }
 {CHAR}+             { 
                         if(ifAlias(yytext) && first){
                             first = false;
