@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "commands.h"
-#include "global.h"
+#include "src/command_handling.h"
+#include "src/global.h"
 #include <string.h>
 
 int yylex(void);

@@ -1,0 +1,1 @@
+alias a b\nalias b c\nalias\nbye\n

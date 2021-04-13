@@ -2,7 +2,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-register" 
 
 #include "nutshparser.tab.h"
-#include "commands.h"
+#include "src/command_handling.h"
 #include <string.h>
 
 bool first = false;
