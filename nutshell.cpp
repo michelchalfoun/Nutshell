@@ -339,7 +339,6 @@ int handleCommandTable(){
 int handleCommandTableBG(){
     // int backgroundStatus = 0;
     // printf("bg: %d\n", backgroundEnable);
-
     pid_t backgroundProcess = fork();
     
     if(backgroundProcess < 0)
@@ -348,9 +347,7 @@ int handleCommandTableBG(){
     }
     else if(backgroundProcess == 0)
     { 
-        
         handleCommandTable();
-
         printf("\n[1] %d is done.\n", backgroundProcess);
         // fflush(nullptr);
         // exit(0);
@@ -365,9 +362,13 @@ int handleCommandTableBG(){
 }
 
 int handleArgs(string word){
-    vector<string> filenames = getWildcardArgs(word);
-    for (int i = 0; i < filenames.size(); i++){
-        curArgs.push_back(filenames[i]);
+    if (word.find('*') != string::npos || word.find('?') != string::npos){
+        vector<string> filenames = getWildcardArgs(word);
+        for (int i = 0; i < filenames.size(); i++){
+            curArgs.push_back(filenames[i]);
+        }
+    }else{
+        curArgs.push_back(word);
     }
     
     return 1;
@@ -439,7 +440,7 @@ int main()
     environment["PATH"] = getenv("PATH");
     expandPathEnv();
 
-    system("clear");
+    // system("clear");
     while(1)
     {
         getcwd(cwd, sizeof(cwd));
