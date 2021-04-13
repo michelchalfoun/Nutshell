@@ -17,7 +17,7 @@ void falsifyFirst(){
 %x string_condition
 %x envVar_condition
 
-CHAR                [.A-Za-z0-9!\?\*\/_-][.A-Za-z0-9!\?\*\/_-]*
+CHAR                [.A-Za-z0-9!\?:\*\/_-][.A-Za-z0-9!\?:\*\/_-]*
 ANYCHAR             [^"]*
 
 %%
