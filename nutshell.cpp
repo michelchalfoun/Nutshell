@@ -111,7 +111,7 @@ int handleSETENV(string name, string value){
         }
         return 1;
     }else{
-        printf("%sError:%s Invalid input.", RED, RESET);
+        printf("%sError:%s Invalid input.\n", RED, RESET);
         return 1;
     }
 }
@@ -124,11 +124,15 @@ int handlePRINTENV(){
 }
 
 int handleUNSETENV(string name){
+    if (name == "PATH" || name == "HOME"){
+        printf("%sError:%s Cannot unset %s.\n", RED, RESET, name.c_str());
+        return 1;
+    }
     if (name.length() > 0){
         environment.erase(name);
         return 1;
     }else{
-        printf("%sError:%s Invalid input.", RED, RESET);
+        printf("%sError:%s Invalid input.\n", RED, RESET);
         return 1;
     }
 }
