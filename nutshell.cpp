@@ -443,7 +443,7 @@ int main()
     tokenize(cwd, '/', dirs);
 
     environment["PWD"] = cwd;
-    environment["HOME"] = getenv("HOME");
+    environment["HOME"] = cwd;
     environment["PROMPT"] = dirs[dirs.size() - 1];
     environment["PATH"] = getenv("PATH");
     expandPathEnv();
