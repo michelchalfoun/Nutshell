@@ -1,7 +1,15 @@
 %{
+#pragma GCC diagnostic ignored "-Wdeprecated-register" 
+
 #include "nutshparser.tab.h"
 #include "commands.h"
 #include <string.h>
+
+bool first = false;
+
+void falsifyFirst(){
+    first = false;
+}
 
 %}
 %array
@@ -9,20 +17,33 @@
 %x string_condition
 %x envVar_condition
 
-CHAR                [.A-Za-z0-9!\/_-][.A-Za-z0-9!\/_-]*
+CHAR                [.A-Za-z0-9!\?:\*\/_-][.A-Za-z0-9!\?:\*\/_-]*
 ANYCHAR             [^"]*
 
 %%
 
-<string_condition>{ANYCHAR}+    { yylval.string = strdup(yytext); return WORD;}
+
+<string_condition>{ANYCHAR}+    { 
+                                    if(ifAlias(yytext) && first){
+                                        first = false;
+                                        char *yycopy = strdup(subAlias(yytext));
+                                            for ( int i = strlen(subAlias(yytext)) - 1; i >= 0; --i )
+                                                unput( yycopy[i] );
+                                            free(yycopy);
+                                    }else{
+                                        first = false;
+                                        yylval.string = strdup(yytext); 
+                                        return WORD; 
+                                    };
+                                }
 <string_condition>[\"]          {BEGIN(INITIAL);}
 
 <envVar_condition>{CHAR}+       { 
                                     if(ifEnv(yytext)){
-                                        char *yycopy = strdup( subEnv(yytext) );
+                                        char *yycopy = strdup(subEnv(yytext));
                                             for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
                                                 unput( yycopy[i] );
-                                            free( yycopy );
+                                            free(yycopy);
                                     }else{
                                         yylval.string = strdup(yytext); 
                                         return WORD; 
@@ -30,26 +51,32 @@ ANYCHAR             [^"]*
                                 }
 <envVar_condition>[}]           {BEGIN(INITIAL);}
 
-
-[ ]		            { }
-bye                 { return BYE; }
-cd		            { return CD;}
-setenv		        { return SETENV;}
-printenv		    { return PRINTENV;}
-unsetenv		    { return UNSETENV;}
-alias               { return ALIAS; }
-unalias             { return UNALIAS; }
-"\n"		        { return END; }
+[ \t\r]		            { }
+bye                 { first = false; return BYE; }
+cd		            { first = false; return CD;}
+setenv		        { first = false; return SETENV;}
+printenv		    { first = false; return PRINTENV;}
+unsetenv		    { first = false; return UNSETENV;}
+alias               { first = false; return ALIAS; }
+unalias             { first = false; return UNALIAS; }
+\n		            { first = true; return END; }
 [\"]                { BEGIN(string_condition); }
-"${"                { BEGIN(envVar_condition); }
-"~"                 { return TILDE; }
+"${"                { first = false; BEGIN(envVar_condition); }
+"|"                 { first = false; return PIPE; }
+"2>"                { first = false; return ERR_GREATERTHAN; }
+"&1"                { first = false; return AMP1; }
+"&"                 { first = false; return AMP; }
+"<"                 { first = false; return LESSTHAN; }
+">"                 { first = false; return GREATERTHAN; }
 {CHAR}+             { 
-                        if(ifAlias(yytext)){
+                        if(ifAlias(yytext) && first){
+                            first = false;
                             char *yycopy = strdup( subAlias(yytext) );
                                 for ( int i = strlen(subAlias(yytext)) - 1; i >= 0; --i )
                                     unput( yycopy[i] );
                                 free( yycopy );
                         }else{
+                            first = false;
                             yylval.string = strdup(yytext); 
                             return WORD; 
                         };
