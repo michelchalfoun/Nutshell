@@ -17,7 +17,7 @@ void falsifyFirst(){
 %x string_condition
 %x envVar_condition
 
-CHAR                [.A-Za-z0-9!\/_-][.A-Za-z0-9!\/_-]*
+CHAR                [.A-Za-z0-9!\?\*\/_-][.A-Za-z0-9!\?\*\/_-]*
 ANYCHAR             [^"]*
 
 %%
@@ -51,7 +51,7 @@ ANYCHAR             [^"]*
                                 }
 <envVar_condition>[}]           {BEGIN(INITIAL);}
 
-[ ]		            { }
+[ \t\r]		            { }
 bye                 { first = false; return BYE; }
 cd		            { first = false; return CD;}
 setenv		        { first = false; return SETENV;}
@@ -63,6 +63,9 @@ unalias             { first = false; return UNALIAS; }
 [\"]                { BEGIN(string_condition); }
 "${"                { first = false; BEGIN(envVar_condition); }
 "|"                 { first = false; return PIPE; }
+"2>"                { first = false; return ERR_GREATERTHAN; }
+"&1"                { first = false; return AMP1; }
+"&"                 { first = false; return AMP; }
 "<"                 { first = false; return LESSTHAN; }
 ">"                 { first = false; return GREATERTHAN; }
 {CHAR}+             { 

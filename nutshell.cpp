@@ -14,6 +14,8 @@
 #include <vector>
 #include <fcntl.h>
 #include <fstream>
+#include <glob.h>
+#include <string.h>
 
 using namespace std;
 
@@ -24,6 +26,7 @@ map<string, string> environment;
 map<string, string> aliases;
 
 vector<string> curArgs;
+bool backgroundEnable = false;
 vector<CommandInfo> cmdTable;
 
 void tokenize(string const &str, const char delim, vector<string> &out)
@@ -60,12 +63,17 @@ void handleBYE(){
 }
 
 int handleCD(string newDir){
+    vector<string> dirs = getWildcardArgs(newDir);
+    if (dirs.size() > 1){
+        printf("%sError:%s Too many directories.\n", RED, RESET);
+        return 1;
+    }
     char arr[FILENAME_MAX];
     string curDir = getcwd(arr, sizeof(arr));
-    string targetDir = curDir + "/" + newDir;
+    string targetDir = curDir + "/" + dirs[0];
 
-    if (newDir[0] == '/') { // arg is relative path
-		targetDir = newDir;
+    if (dirs[0][0] == '/') { // arg is relative path
+		targetDir = dirs[0];
 	}
 
     if(chdir(targetDir.c_str()) == 0) {
@@ -189,7 +197,7 @@ const char* subEnv(char* name){
     return name;
 }
 
-int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, string inputFile, string outputFile, bool append){
+int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, string inputFile, string outputFile, bool append, string errOutput){
     pid_t p1 = fork(), parentpid;
     int status = 0;
     int execRes = 0;
@@ -246,6 +254,7 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         if (inputFile.length() == 0){
             tempInput = "tempPipe";
         }
+
         if (outputFile.length() == 0){
             tempOutput = "tempPipe";
             writePermission = "w";
@@ -253,6 +262,17 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
             writePermission = append ? "a" : "w";
         }
         
+        if (errOutput.length() != 0){
+            if (errOutput == "&1"){
+                dup2(1, 2);
+            }else{
+                FILE* errTempFile = fopen(errOutput.c_str(), "w");
+                int errTempPipe = fileno(errTempFile);
+                dup2(errTempPipe, 2);
+                fclose(errTempFile);
+            }
+        }
+
         if (pipeIn && pipeOut){
             
             if (tempInput == tempOutput){
@@ -287,7 +307,7 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         }
         printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
         exit(0);
-    }   
+    }
     return 1;
 }
 
@@ -296,27 +316,79 @@ int handleCommandTable(){
     //     printf("Command %s, in: %s, out: %s.\n", cmdTable[i].name.c_str(), cmdTable[i].in.c_str(), cmdTable[i].out.c_str());
     // }
     if (cmdTable.size() == 1){
-        handleCommand(cmdTable[0].name, cmdTable[0].args, cmdTable[0].in != "", cmdTable[0].out != "", cmdTable[0].in, cmdTable[0].out, cmdTable[0].appendOutput);
-        cmdTable.clear();
-        return 1;
-    }
-    for (int i = 0; i < cmdTable.size(); i++){
-        if (((i - 1) >= 0) && ((i + 1) < cmdTable.size())){ // Middle
-            handleCommand(cmdTable[i].name, cmdTable[i].args, true, true, "", "", cmdTable[i].appendOutput);
-        }else if((i - 1) >= 0){ // End
-            handleCommand(cmdTable[i].name, cmdTable[i].args, true, cmdTable[i].out.length() != 0, "", cmdTable[i].out, cmdTable[i].appendOutput);
-        }else if((i + 1) < cmdTable.size()){ // Beginning
-            handleCommand(cmdTable[i].name, cmdTable[i].args, cmdTable[i].in.length() != 0, true, cmdTable[i].in, "", cmdTable[i].appendOutput);
+        handleCommand(cmdTable[0].name, cmdTable[0].args, cmdTable[0].in != "", cmdTable[0].out != "", cmdTable[0].in, cmdTable[0].out, cmdTable[0].appendOutput, cmdTable[0].errOutput);
+        // cmdTable.clear();
+        // return 1;
+    }else{
+        for (int i = 0; i < cmdTable.size(); i++){
+            if (((i - 1) >= 0) && ((i + 1) < cmdTable.size())){ // Middle
+                handleCommand(cmdTable[i].name, cmdTable[i].args, true, true, "", "", cmdTable[i].appendOutput, cmdTable[i].errOutput);
+            }else if((i - 1) >= 0){ // End
+                handleCommand(cmdTable[i].name, cmdTable[i].args, true, cmdTable[i].out.length() != 0, "", cmdTable[i].out, cmdTable[i].appendOutput, cmdTable[i].errOutput);
+            }else if((i + 1) < cmdTable.size()){ // Beginning
+                handleCommand(cmdTable[i].name, cmdTable[i].args, cmdTable[i].in.length() != 0, true, cmdTable[i].in, "", cmdTable[i].appendOutput, cmdTable[i].errOutput);
+            }
         }
     }
     remove("tempPipe");
     cmdTable.clear();
+    backgroundEnable = false;
+    return 1;
+}
+
+int handleCommandTableBG(){
+    // int backgroundStatus = 0;
+    // printf("bg: %d\n", backgroundEnable);
+
+    pid_t backgroundProcess = fork();
+    
+    if(backgroundProcess < 0)
+    {
+        printf("%sError:%s Process could not be created to run system command table.", RED, RESET);
+    }
+    else if(backgroundProcess == 0)
+    { 
+        
+        handleCommandTable();
+
+        printf("\n[1] %d is done.\n", backgroundProcess);
+        // fflush(nullptr);
+        // exit(0);
+        // return 1;
+    }else
+    {
+        printf("[1] %d\n", backgroundProcess);
+        // fflush(nullptr);
+        // return 1;
+    }
     return 1;
 }
 
 int handleArgs(string word){
-    curArgs.push_back(word);
+    vector<string> filenames = getWildcardArgs(word);
+    for (int i = 0; i < filenames.size(); i++){
+        curArgs.push_back(filenames[i]);
+    }
+    
     return 1;
+}
+
+vector<string> getWildcardArgs(string arg){
+    glob_t glob_result;
+    memset(&glob_result, 0, sizeof(glob_result));
+    int return_value = glob(arg.c_str(), GLOB_TILDE, NULL, &glob_result);
+    if(return_value != 0) {
+        globfree(&glob_result);
+        stringstream ss;
+        ss << "glob() failed with return_value " << return_value << endl;
+        printf("Error: %s", ss.str().c_str());
+    }
+    vector<string> filenames;
+    for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
+        filenames.push_back(string(glob_result.gl_pathv[i]));
+    }
+    globfree(&glob_result);
+    return filenames;
 }
 
 int handleCommands(string word){
@@ -339,8 +411,23 @@ int handleOutRed(string name, bool append){
     return 1;
 }
 
+int handleErrRed(string name, bool stdOutput){
+    if (stdOutput){
+        cmdTable[cmdTable.size() - 1].errOutput = "&1";
+    }else{
+        cmdTable[cmdTable.size() - 1].errOutput = name;
+    }
+    return 1;
+}
+
+int enableAmpersand(){
+    backgroundEnable = true;
+    return 1;
+}
+
 int main()
 {
+    char cwd[PATH_MAX];
     getcwd(cwd, sizeof(cwd));
 
     vector<string> dirs;

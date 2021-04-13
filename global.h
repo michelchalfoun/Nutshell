@@ -6,11 +6,12 @@
 #include <vector>
 #include <map>
 
-char cwd[PATH_MAX];
+
 extern std::map<std::string, std::string> environment;
 extern std::map<std::string, std::string> aliases;
 
 extern std::vector<std::string> curArgs;
+extern bool backgroundEnable;
 
 struct CommandInfo{
     std::string name;
@@ -18,6 +19,7 @@ struct CommandInfo{
     std::string in = "";
     std::string out = "";
     bool appendOutput = false;
+    std::string errOutput = "";
 };
 extern std::vector<CommandInfo> cmdTable;
 
