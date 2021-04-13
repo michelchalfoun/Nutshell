@@ -138,6 +138,15 @@ int handleSetAlias(string name, string value){
         printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
         return 1;
     }
+    // Infinite loop check
+    auto foundAlias = aliases.find(value);
+    while(foundAlias != aliases.end()){
+        if (foundAlias->second == name){
+            printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
+            return 1;
+        }
+        foundAlias = aliases.find(foundAlias->second);
+    }
     for (auto i = aliases.begin(); i != aliases.end(); i++){
         if (((i->first).c_str() == name) && ((i->first).c_str() == name)){
             printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
