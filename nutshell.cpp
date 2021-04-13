@@ -186,10 +186,11 @@ bool ifAlias(char* name){
 }
 
 const char* subAlias(char* name){
-    if (aliases.find(name) != aliases.end()){
-        return aliases[name].c_str();
+    auto foundAlias = aliases.find(name);
+    while (aliases.find(foundAlias->second) != aliases.end()){
+        foundAlias = aliases.find(foundAlias->second);
     }
-    return name;
+    return (foundAlias->second).c_str();
 }
 
 bool ifEnv(char* name){
