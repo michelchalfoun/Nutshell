@@ -317,6 +317,10 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
             fclose(tempFile);
         }
         for (int i = 0; i < paths.size(); i++){
+            if (paths[i] == "."){
+                paths[i] = environment["PWD"];
+            }
+            // printf("Path %d is %s.\n", i, paths[i].c_str());
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
         }
         printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
