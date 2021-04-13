@@ -138,6 +138,15 @@ int handleSetAlias(string name, string value){
         printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
         return 1;
     }
+    // Infinite loop check
+    auto foundAlias = aliases.find(value);
+    while(foundAlias != aliases.end()){
+        if (foundAlias->second == name){
+            printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
+            return 1;
+        }
+        foundAlias = aliases.find(foundAlias->second);
+    }
     for (auto i = aliases.begin(); i != aliases.end(); i++){
         if (((i->first).c_str() == name) && ((i->first).c_str() == name)){
             printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
@@ -177,10 +186,11 @@ bool ifAlias(char* name){
 }
 
 const char* subAlias(char* name){
-    if (aliases.find(name) != aliases.end()){
-        return aliases[name].c_str();
+    auto foundAlias = aliases.find(name);
+    while (aliases.find(foundAlias->second) != aliases.end()){
+        foundAlias = aliases.find(foundAlias->second);
     }
-    return name;
+    return (foundAlias->second).c_str();
 }
 
 bool ifEnv(char* name){
