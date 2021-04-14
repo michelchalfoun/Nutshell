@@ -1,20 +1,18 @@
 #pragma once
 
+#include "global.h"
 #include "helpers.h"
-#include <string>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
-#include "global.h"
 #include <unistd.h>
-#include <pwd.h>
 #include <iostream>
 #include <sstream>
-#include <map>
-#include <vector>
-#include <fcntl.h>
 #include <fstream>
-#include <string.h>
+#include <cstring>
+#include <pwd.h>
+#include <fcntl.h>
+
 using namespace std;
 
 int handleBYE();
