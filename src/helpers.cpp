@@ -35,13 +35,14 @@ vector<string> getWildcardArgs(string arg){
     glob_t glob_result;
     memset(&glob_result, 0, sizeof(glob_result));
     int return_value = glob(arg.c_str(), GLOB_TILDE, NULL, &glob_result);
+    vector<string> filenames;
     if(return_value != 0) {
         globfree(&glob_result);
         stringstream ss;
         ss << "glob() failed with return_value " << return_value << endl;
         printf("Error: %s", ss.str().c_str());
+        return filenames;
     }
-    vector<string> filenames;
     for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
         filenames.push_back(string(glob_result.gl_pathv[i]));
     }

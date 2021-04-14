@@ -16,16 +16,19 @@ int handleSetAlias(string name, string value){
         }
         foundAlias = aliases.find(foundAlias->second);
     }
-    for (auto i = aliases.begin(); i != aliases.end(); i++){
-        if (((i->first).c_str() == name) && ((i->first).c_str() == name)){
-            printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
-            return 1;
-        }else if ((i->first).c_str() == name){
-            i->second = value;
-            return 1;
-        }
+    if ((name.length() > 0) && (value.length() > 0)){
+        aliases[name] = value;
     }
-    aliases[name] = value;
+    // for (auto i = aliases.begin(); i != aliases.end(); i++){
+    //     if (((i->first).c_str() == name) && ((i->first).c_str() == name)){
+    //         printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
+    //         return 1;
+    //     }else if ((i->first).c_str() == name){
+    //         i->second = value;
+    //         return 1;
+    //     }
+    // }
+    // aliases[name] = value;
     return 1;
 }
 

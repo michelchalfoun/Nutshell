@@ -40,6 +40,7 @@ int main()
         dirs.clear();
         splitString(cwd, '/', dirs);
         environment["PROMPT"] = dirs[dirs.size() - 1];
+        sleep(1);
         printf("%snUtShElL ❖%s %s%s ➤➤ %s", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
         yyparse();
     }
