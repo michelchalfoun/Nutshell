@@ -17,7 +17,7 @@
 #include <string.h>
 using namespace std;
 
-void handleBYE();
+int handleBYE();
 int enableAmpersand();
 
 int handleCD(string newDir);

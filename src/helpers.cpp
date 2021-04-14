@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void tokenize(string const &str, const char delim, vector<string> &out)
+void splitString(string const &str, const char delim, vector<string> &out)
 {
     size_t start;
     size_t end = 0;
@@ -16,7 +16,7 @@ void tokenize(string const &str, const char delim, vector<string> &out)
 
 void expandPathEnv(){
     vector<string> paths;
-    tokenize(environment["PATH"], ':', paths);
+    splitString(environment["PATH"], ':', paths);
     string pathString = "";
     for (int i = 0; i < paths.size(); i++){
         if (paths[i][0] == '~'){

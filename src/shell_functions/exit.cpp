@@ -1,5 +1,6 @@
 #include "../command_handling.h"
 
-void handleBYE(){
-    return(exit(1));
+int handleBYE(){
+    exit(1);
+    return 1;
 }

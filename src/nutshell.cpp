@@ -18,11 +18,12 @@ int main()
     getcwd(cwd, sizeof(cwd));
 
     vector<string> dirs;
-    tokenize(cwd, '/', dirs);
+    splitString(cwd, '/', dirs);
 
     environment["PWD"] = cwd;
     environment["HOME"] = cwd;
     environment["PROMPT"] = dirs[dirs.size() - 1];
+    // environment["PATH"] = "."; //Default
     environment["PATH"] = ".:/bin:/usr/bin:/usr/local/bin";
     expandPathEnv();
 
@@ -33,7 +34,7 @@ int main()
         environment["PWD"] = cwd;
         
         dirs.clear();
-        tokenize(cwd, '/', dirs);
+        splitString(cwd, '/', dirs);
         environment["PROMPT"] = dirs[dirs.size() - 1];
         printf("%snUtShElL ❖%s %s%s ➤➤ %s", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
         yyparse();

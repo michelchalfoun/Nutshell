@@ -32,7 +32,7 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
     argArray[args.size() + 1] = NULL;
     
     // Split up paths to know where to find command executables
-    tokenize(environment["PATH"], ':', paths);
+    splitString(environment["PATH"], ':', paths);
 
     if(p1 < 0)
     {
