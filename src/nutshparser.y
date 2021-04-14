@@ -24,7 +24,7 @@ extern void scan_string(const char* str);
 
 
 %start cmd_line
-%token <string> BYE END STRING WORD ERR_GREATERTHAN AMP1
+%token <string> BYE END STRING WORD ERR_GREATERTHAN AMP1 ERR
 %token <command> CD SETENV PRINTENV UNSETENV ALIAS UNALIAS  
 %token <character> TILDE PIPE LESSTHAN GREATERTHAN AMP
 %error-verbose

@@ -21,24 +21,25 @@ void falsifyFirst(){
 %x envVarQuotes_condition
 
 CHAR                [.A-Za-z0-9!\?:\*\/_-]*
-/* ANYCHAR             [.A-Za-z0-9![^[\$/\{]]@#%\^&\(\)\} \?:\*\/_-]* */
-ANYCHAR             [^[?!.*[[\$/\{]\"]]]*
+ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
 
 %%
 
+<string_condition>"${"              {BEGIN(envVarQuotes_condition);}
+<string_condition>[\"]              {BEGIN(INITIAL);yylval.string = strdup(envString);return WORD;}
 <string_condition>{ANYCHAR}+        { 
                                         first = false;
                                         strcat(envString, yytext);
                                     }
-<string_condition>"${"              {BEGIN(envVarQuotes_condition);}
-<string_condition>[\"]              {BEGIN(INITIAL);yylval.string = strdup(envString);return WORD;}
+<string_condition>.                 { }
 
+<envVarQuotes_condition>[}]         {BEGIN(string_condition);}
 <envVarQuotes_condition>{ANYCHAR}+  {
                                         if(ifEnv(yytext)){
                                             strcat(envString, strdup(subEnv(yytext)));
                                         };
                                     }
-<envVarQuotes_condition>[}]         {BEGIN(string_condition);}
+<envVarQuotes_condition>.           { }
 
 <envVar_condition>{CHAR}+           { 
                                         if(ifEnv(yytext)){
@@ -52,6 +53,7 @@ ANYCHAR             [^[?!.*[[\$/\{]\"]]]*
                                         };
                                     }
 <envVar_condition>[}]               {BEGIN(INITIAL);}
+<envVarQuotes_condition>.           { }
 
 [ \t\r]		        { }
 bye                 { first = false; return BYE; }
@@ -83,4 +85,5 @@ unalias             { first = false; return UNALIAS; }
                             return WORD; 
                         };
                     }
+.                   { }
 %%
