@@ -51,10 +51,6 @@ eRed:
   | ERR_GREATERTHAN WORD              {handleErrRed($2, false);}
   | ERR_GREATERTHAN AMP1              {handleErrRed($2, true);}
 
-/* eRedB:
-  | ERR_GREATERTHAN WORD              {handleErrRedB($2, false);}
-  | ERR_GREATERTHAN AMP1              {handleErrRedB($2, false);} */
-
 iRed:
   | LESSTHAN WORD                     {handleInRed($2);}
 

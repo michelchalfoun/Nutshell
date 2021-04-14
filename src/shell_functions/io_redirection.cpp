@@ -26,9 +26,3 @@ int handleErrRed(string name, bool stdOutput){
     }
     return 1;
 }
-
-// int handleErrRedB(string name, bool stdOutput){
-//     outputRedirectionBuiltIn = true;
-//     outputRedirectionBuiltInFilename = name;
-//     return 1;
-// }
