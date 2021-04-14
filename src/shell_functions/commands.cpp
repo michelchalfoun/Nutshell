@@ -2,7 +2,7 @@
 #include "../helpers.h"
 
 int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, string inputFile, string outputFile, bool append, string errOutput){
-    pid_t p1 = fork(), parentpid;
+    
     int status = 0;
     int execRes = 0;
 
@@ -33,7 +33,7 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
     
     // Split up paths to know where to find command executables
     splitString(environment["PATH"], ':', paths);
-
+    pid_t p1 = fork(), parentpid;
     if(p1 < 0)
     {
         printf("%sError:%s Process could not be created to run system command %s.", RED, RESET, name.c_str());
@@ -109,7 +109,9 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         for (int i = 0; i < paths.size(); i++){
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
         }
-        printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
+        // printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
+        string error = "Command " + name + " not found";
+        yyerror((char *)error.c_str());
         exit(0);
     }
     return 1;
