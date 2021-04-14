@@ -1,9 +1,12 @@
 CPPFLAGS:= -Wno-deprecated -std=c++11
 
 all:
-	bison -d nutshparser.y
-	flex nutshscanner.l
-	g++ -o nutshell nutshell.cpp $(CPPFLAGS) lex.yy.c nutshparser.tab.c
+	bison -d src/nutshparser.y
+	flex src/nutshscanner.l
+	g++ -o nutshell src/*.cpp src/shell_functions/*.cpp $(CPPFLAGS) lex.yy.c nutshparser.tab.c
+
+test:
+	g++ -o testdir/test testdir/test.cpp
 
 clean:
 	rm nutshparser.tab.c nutshparser.tab.h lex.yy.c nutshell

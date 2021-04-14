@@ -6,7 +6,6 @@
 #include <vector>
 #include <map>
 
-
 extern std::map<std::string, std::string> environment;
 extern std::map<std::string, std::string> aliases;
 
