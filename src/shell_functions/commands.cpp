@@ -151,7 +151,7 @@ int handleCommandTableBG(){
     else if(backgroundProcess == 0)
     { 
         handleCommandTable();
-        printf("\nBackground process %d is done.\n", backgroundProcess);
+        printf("\nBackground process is done.\n");
         printPrompt();
         exit(0);
     }else

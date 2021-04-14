@@ -1,7 +1,13 @@
 #include "../command_handling.h"
 
 int handleCD(string newDir){
-    vector<string> dirs = getWildcardArgs(newDir);
+    vector<string> dirs;
+    if ((newDir.find("*") == string::npos) && (newDir.find("?") == string::npos)){
+        dirs.push_back(newDir);
+    }else{
+        dirs = getWildcardArgs(newDir);
+    }
+    
     if (dirs.size() > 1){
         printf("%sError:%s Too many directories.\n", RED, RESET);
         return 1;

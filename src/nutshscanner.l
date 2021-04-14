@@ -53,7 +53,6 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         };
                                     }
 <envVar_condition>[}]               {BEGIN(INITIAL);}
-<envVarQuotes_condition>.           { }
 
 [ \t\r]		        { }
 bye                 { first = false; return BYE; }
