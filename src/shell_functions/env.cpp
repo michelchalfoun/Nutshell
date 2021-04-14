@@ -14,9 +14,23 @@ int handleSETENV(string name, string value){
 }
 
 int handlePRINTENV(){
+    int saved_stdout;
+    if (outputRedirectionBuiltIn){
+        saved_stdout = dup(1);
+        string writePermission = "w";
+        if (outputRedirectionBuiltInAppend){
+            writePermission = "a";
+        }
+        FILE* tempFile = fopen(outputRedirectionBuiltInFilename.c_str(), writePermission.c_str());
+        int outTempPipe = fileno(tempFile);
+        dup2(outTempPipe, 1);
+    }
     for (auto i = environment.begin(); i != environment.end(); i++){
         printf("%s:%s\n", (i->first).c_str(), (i->second).c_str());
     }
+    dup2(saved_stdout, 1);
+    close(saved_stdout);
+    outputRedirectionBuiltIn = false;
     return 1;
 }
 

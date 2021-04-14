@@ -48,3 +48,4 @@ vector<string> getWildcardArgs(string arg){
     globfree(&glob_result);
     return filenames;
 }
+

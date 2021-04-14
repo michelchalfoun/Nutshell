@@ -5,6 +5,13 @@ using namespace std;
 map<string, string> environment;
 map<string, string> aliases;
 
+bool outputRedirectionBuiltIn;
+string outputRedirectionBuiltInFilename;
+bool outputRedirectionBuiltInAppend;
+
+// bool errRedirectionBuiltIn;
+// string errRedirectionBuiltInFile;
+
 vector<string> curArgs;
 bool backgroundEnable = false;
 vector<CommandInfo> cmdTable;

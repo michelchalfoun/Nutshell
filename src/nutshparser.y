@@ -37,10 +37,10 @@ cmd_line    :
   | CD TILDE WORD END                 {runCDTilde($3); return 1;} */
   | CD WORD END        			          {return handleCD($2);}
   | SETENV WORD WORD END              {return handleSETENV($2, $3);}
-  | PRINTENV END        			        {return handlePRINTENV();}
+  | PRINTENV oRedB END        	      {return handlePRINTENV();}
   | UNSETENV WORD END       		      {return handleUNSETENV($2);}
   | ALIAS WORD WORD END		            {return handleSetAlias($2, $3);}
-  | ALIAS END		                      {return handleShowAlias();}
+  | ALIAS oRedB END     		          {return handleShowAlias();}
   | UNALIAS WORD END		              {return handleUnsetAlias($3);}
   | cmd pipCmds iRed oRed eRed amp END{return runCommandTable();}
 
@@ -51,12 +51,20 @@ eRed:
   | ERR_GREATERTHAN WORD              {handleErrRed($2, false);}
   | ERR_GREATERTHAN AMP1              {handleErrRed($2, false);}
 
+/* eRedB:
+  | ERR_GREATERTHAN WORD              {handleErrRedB($2, false);}
+  | ERR_GREATERTHAN AMP1              {handleErrRedB($2, false);} */
+
 iRed:
   | LESSTHAN WORD                     {handleInRed($2);}
 
 oRed:
   | GREATERTHAN WORD                  {handleOutRed($2, false);}
   | GREATERTHAN GREATERTHAN WORD      {handleOutRed($3, true);}
+
+oRedB:
+  | GREATERTHAN WORD                  {handleOutRedB($2, false);}
+  | GREATERTHAN GREATERTHAN WORD      {handleOutRedB($3, true);}
 
 pipCmds:
   | pipCmds pipCmd
@@ -83,6 +91,6 @@ int runCommandTable(){
 }
 
 int yyerror(char *s) {
-  printf("%s\n",s);
+  fprintf(stderr, "%sError:%s %s.\n", RED, RESET, s);
   return 0;
 }
