@@ -156,7 +156,7 @@ int handleCommandTableBG(){
         handleCommandTable();
         printf("\n[1] %d is done.\n", backgroundProcess);
         // fflush(nullptr);
-        // exit(0);
+        exit(0);
         // return 1;
     }else
     {
