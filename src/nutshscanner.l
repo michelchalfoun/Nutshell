@@ -21,7 +21,8 @@ void falsifyFirst(){
 %x envVarQuotes_condition
 
 CHAR                [.A-Za-z0-9!\?:\*\/_-]*
-ANYCHAR             [.A-Za-z0-9! \?:\*\/_-]*
+/* ANYCHAR             [.A-Za-z0-9![^[\$/\{]]@#%\^&\(\)\} \?:\*\/_-]* */
+ANYCHAR             [^[?!.*[[\$/\{]\"]]]*
 
 %%
 

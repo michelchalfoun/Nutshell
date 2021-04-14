@@ -50,3 +50,6 @@ vector<string> getWildcardArgs(string arg){
     return filenames;
 }
 
+void printPrompt(){
+    printf("%snUtShElL ❖%s %s%s ➤➤ %s", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
+}

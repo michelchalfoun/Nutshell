@@ -13,3 +13,4 @@ using namespace std;
 void expandPathEnv();
 void splitString(string const &str, const char delim, vector<string> &out);
 vector<string> getWildcardArgs(string arg);
+void printPrompt();

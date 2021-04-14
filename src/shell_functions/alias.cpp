@@ -2,8 +2,7 @@
 
 int handleSetAlias(string name, string value){
     if (name == value){
-        // printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
-        string error = "Expansion of " + name + " would create a loop";
+        string error = "Expansion of " + name + " would create an infinite loop";
         yyerror((char *)error.c_str());
         return 1;
     }
@@ -11,7 +10,8 @@ int handleSetAlias(string name, string value){
     auto foundAlias = aliases.find(value);
     while(foundAlias != aliases.end()){
         if (foundAlias->second == name){
-            printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
+            string error = "Expansion of " + name + " would create an infinite loop";
+            yyerror((char *)error.c_str());
             return 1;
         }
         foundAlias = aliases.find(foundAlias->second);
@@ -19,16 +19,6 @@ int handleSetAlias(string name, string value){
     if ((name.length() > 0) && (value.length() > 0)){
         aliases[name] = value;
     }
-    // for (auto i = aliases.begin(); i != aliases.end(); i++){
-    //     if (((i->first).c_str() == name) && ((i->first).c_str() == name)){
-    //         printf("%sError:%s Expansion of \"%s\" would create a loop.\n", RED, RESET, name.c_str());
-    //         return 1;
-    //     }else if ((i->first).c_str() == name){
-    //         i->second = value;
-    //         return 1;
-    //     }
-    // }
-    // aliases[name] = value;
     return 1;
 }
 

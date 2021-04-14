@@ -123,8 +123,6 @@ int handleCommandTable(){
     // }
     if (cmdTable.size() == 1){
         handleCommand(cmdTable[0].name, cmdTable[0].args, cmdTable[0].in != "", cmdTable[0].out != "", cmdTable[0].in, cmdTable[0].out, cmdTable[0].appendOutput, cmdTable[0].errOutput);
-        // cmdTable.clear();
-        // return 1;
     }else{
         for (int i = 0; i < cmdTable.size(); i++){
             if (((i - 1) >= 0) && ((i + 1) < cmdTable.size())){ // Middle
@@ -143,8 +141,7 @@ int handleCommandTable(){
 }
 
 int handleCommandTableBG(){
-    // int backgroundStatus = 0;
-    // printf("bg: %d\n", backgroundEnable);
+
     pid_t backgroundProcess = fork();
     
     if(backgroundProcess < 0)
@@ -154,15 +151,14 @@ int handleCommandTableBG(){
     else if(backgroundProcess == 0)
     { 
         handleCommandTable();
-        printf("\n[1] %d is done.\n", backgroundProcess);
-        // fflush(nullptr);
+        printf("\nBackground process %d is done.\n", backgroundProcess);
+        printPrompt();
         exit(0);
-        // return 1;
     }else
     {
-        printf("[1] %d\n", backgroundProcess);
-        // fflush(nullptr);
-        // return 1;
+        printf("Parent process is %d.\n", backgroundProcess);
     }
+    cmdTable.clear();
+    backgroundEnable = false;
     return 1;
 }
