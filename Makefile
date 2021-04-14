@@ -5,5 +5,8 @@ all:
 	flex src/nutshscanner.l
 	g++ -o nutshell src/*.cpp src/shell_functions/*.cpp $(CPPFLAGS) lex.yy.c nutshparser.tab.c
 
+test:
+	g++ -o testdir/test testdir/test.cpp
+
 clean:
 	rm nutshparser.tab.c nutshparser.tab.h lex.yy.c nutshell
