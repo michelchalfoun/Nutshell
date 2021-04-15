@@ -111,6 +111,11 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
             }
             fclose(tempFile);
         }
+        if ((errOutput.length() > 0) && (errOutput != "&1")){
+            FILE* errTempFile = fopen(tempInput.c_str(), "w");
+            int errTempPipe = fileno(errTempFile);
+            dup2(errTempPipe, 2);
+        }
 
         for (int i = 0; i < paths.size(); i++){
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
