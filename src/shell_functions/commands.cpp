@@ -70,20 +70,10 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         }else{
             writePermission = append ? "a" : "w";
         }
-        
-        if (errOutput.length() != 0){
-            if (errOutput == "&1"){
-                dup2(1, 2);
-            }else{
-                FILE* errTempFile = fopen(errOutput.c_str(), "w");
-                int errTempPipe = fileno(errTempFile);
-                dup2(errTempPipe, 2);
-                fclose(errTempFile);
-            }
-        }
+
+        int possibleErrOutput;
 
         if (pipeIn && pipeOut){
-            
             if (tempInput == tempOutput){
                 FILE* inTempFile = fopen(tempInput.c_str(), ("r" + writePermission).c_str());
                 inTempPipe = fileno(inTempFile);
@@ -111,6 +101,19 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
             dup2(outTempPipe, 1);
             fclose(tempFile);
         }
+
+        possibleErrOutput = outTempPipe;
+        if (errOutput.length() != 0){
+            if (errOutput == "&1"){
+                dup2(possibleErrOutput, 2);
+            }else{
+                FILE* errTempFile = fopen(errOutput.c_str(), "w");
+                int errTempPipe = fileno(errTempFile);
+                dup2(errTempPipe, 2);
+                fclose(errTempFile);
+            }
+        }
+
         for (int i = 0; i < paths.size(); i++){
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
         }
@@ -151,7 +154,6 @@ int handleCommandTable(){
     for (auto i : tempPipeNames) {
         remove(i.c_str());
     }
-    // remove("tempPipe");
     cmdTable.clear();
     backgroundEnable = false;
     return 1;
@@ -169,12 +171,10 @@ int handleCommandTableBG(){
     else if(backgroundProcess == 0)
     { 
         handleCommandTable();
-        printf("\nBackground process is done.\n");
         printPrompt();
         exit(0);
     }else
     {
-        printf("Parent process is %d.\n", backgroundProcess);
     }
     cmdTable.clear();
     backgroundEnable = false;
