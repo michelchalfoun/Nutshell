@@ -36,6 +36,10 @@ int handlePRINTENV(){
 }
 
 int handleUNSETENV(string name){
+    if (name == "PATH" || name == "HOME"){
+        printf("%sError:%s Cannot unset %s.\n", RED, RESET, name.c_str());
+        return 1;
+    }
     if (name.length() > 0){
         if (environment.find(name) != environment.end()){
             environment.erase(name);

@@ -1,5 +1,9 @@
 #include "../command_handling.h"
 #include "../helpers.h"
+#include <iostream>
+#include <set>
+
+using namespace std;
 
 int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, string inputFile, string outputFile, bool append, string errOutput){
     
@@ -122,20 +126,32 @@ int handleCommandTable(){
     // for (int i = 0; i < cmdTable.size(); i++){
     //     printf("Command %s, in: %s, out: %s.\n", cmdTable[i].name.c_str(), cmdTable[i].in.c_str(), cmdTable[i].out.c_str());
     // }
+    set<string> tempPipeNames;
     if (cmdTable.size() == 1){
         handleCommand(cmdTable[0].name, cmdTable[0].args, cmdTable[0].in != "", cmdTable[0].out != "", cmdTable[0].in, cmdTable[0].out, cmdTable[0].appendOutput, cmdTable[0].errOutput);
     }else{
         for (int i = 0; i < cmdTable.size(); i++){
             if (((i - 1) >= 0) && ((i + 1) < cmdTable.size())){ // Middle
-                handleCommand(cmdTable[i].name, cmdTable[i].args, true, true, "", "", cmdTable[i].appendOutput, cmdTable[i].errOutput);
+                string tempPipe = "tempPipe" + to_string(i - 1);
+                string tempPipe2 = "tempPipe" + to_string(i);
+                tempPipeNames.insert(tempPipe);
+                tempPipeNames.insert(tempPipe2);
+                handleCommand(cmdTable[i].name, cmdTable[i].args, true, true, tempPipe, tempPipe2, cmdTable[i].appendOutput, cmdTable[i].errOutput);
             }else if((i - 1) >= 0){ // End
-                handleCommand(cmdTable[i].name, cmdTable[i].args, true, cmdTable[i].out.length() != 0, "", cmdTable[i].out, cmdTable[i].appendOutput, cmdTable[i].errOutput);
+                string tempPipe = "tempPipe" + to_string(i - 1);
+                tempPipeNames.insert(tempPipe);
+                handleCommand(cmdTable[i].name, cmdTable[i].args, true, cmdTable[i].out.length() != 0, tempPipe, cmdTable[i].out, cmdTable[i].appendOutput, cmdTable[i].errOutput);
             }else if((i + 1) < cmdTable.size()){ // Beginning
-                handleCommand(cmdTable[i].name, cmdTable[i].args, cmdTable[i].in.length() != 0, true, cmdTable[i].in, "", cmdTable[i].appendOutput, cmdTable[i].errOutput);
+                string tempPipe = "tempPipe" + to_string(i);
+                tempPipeNames.insert(tempPipe);
+                handleCommand(cmdTable[i].name, cmdTable[i].args, cmdTable[i].in.length() != 0, true, cmdTable[i].in, tempPipe, cmdTable[i].appendOutput, cmdTable[i].errOutput);
             }
         }
     }
-    remove("tempPipe");
+    for (auto i : tempPipeNames) {
+        remove(i.c_str());
+    }
+    // remove("tempPipe");
     cmdTable.clear();
     backgroundEnable = false;
     return 1;
