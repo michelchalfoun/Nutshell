@@ -27,10 +27,12 @@ extern void scan_string(const char* str);
 %start cmd_line
 %token <string> BYE END STRING WORD ERR_GREATERTHAN AMP1 ERR
 %token <command> CD SETENV PRINTENV UNSETENV ALIAS UNALIAS  
-%token <character> TILDE PIPE LESSTHAN GREATERTHAN AMP
+%token <character> TILDE PIPE LESSTHAN GREATERTHAN AMP ESCAPE
 %error-verbose
 
 %%
+
+
 cmd_line    :
 	BYE END 		                        {return handleBYE(); }
   | CD END                            {return handleCDHome();}
@@ -44,7 +46,7 @@ cmd_line    :
   | ALIAS oRedB END     		          {return handleShowAlias();}
   | UNALIAS WORD END		              {return handleUnsetAlias($3);}
   | cmd pipCmds iRed oRed eRed amp END{return runCommandTable();}
-
+ESCAPE                                {YYACCEPT;}
 amp:
   | AMP                               {enableAmpersand();}
 
