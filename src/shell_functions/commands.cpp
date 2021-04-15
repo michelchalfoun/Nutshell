@@ -115,7 +115,6 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         for (int i = 0; i < paths.size(); i++){
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
         }
-        printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
         string error = "Command " + name + " not found";
         yyerror((char *)error.c_str());
         exit(0);
@@ -129,7 +128,6 @@ int handleCommandTable(){
     // }
     set<string> tempPipeNames;
     if (cmdTable.size() == 1){
-        printf("cmdTable[0].errOutput: %s.\n", cmdTable[0].errOutput.c_str());
         handleCommand(cmdTable[0].name, cmdTable[0].args, cmdTable[0].in != "", cmdTable[0].out != "", cmdTable[0].in, cmdTable[0].out, cmdTable[0].appendOutput, cmdTable[0].errOutput);
     }else{
         for (int i = 0; i < cmdTable.size(); i++){
