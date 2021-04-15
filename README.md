@@ -6,7 +6,7 @@ This README is for the Nutshell Project for COP 4600 - Spring 2021.
 Run `make` in the terminal, making sure you're inside the directory with the source files and Makefile. Then run `./nutshell` to start up the Nutshell. If you would like to exit out of the Nutshell simply run the `bye` command.
 ***
 ## Features not implemented
-We currrently haven't implemented the extra credit, which includes the tilde expansion as well as the file name completion.
+We currrently have all the features implemented!
 ***
 ## Features implemented
 Here is a list of features we weren't able to implement:
@@ -22,6 +22,9 @@ Here is a list of features we weren't able to implement:
     - I/O redirection
     - Piping
     - Wildcard matching
+- Extra Credit
+    - Tilde Expansion
+    - File Name Completion
 ***
 ## Contributions
 ##### Michel El Chalfoun
