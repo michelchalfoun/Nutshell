@@ -16,7 +16,7 @@ int handleCD(string newDir){
     char arr[FILENAME_MAX];
     string curDir = getcwd(arr, sizeof(arr));
     string targetDir = curDir + "/" + dirs[0];
-
+    
     if (dirs[0][0] == '/') { // arg is relative path
 		targetDir = dirs[0];
 	}

@@ -36,8 +36,6 @@ extern void scan_string(const char* str);
 cmd_line    :
 	BYE END 		                        {return handleBYE(); }
   | CD END                            {return handleCDHome();}
-  /* | CD TILDE END                     {runCDHome(); return 1;}
-  | CD TILDE WORD END                 {runCDTilde($3); return 1;} */
   | CD WORD END        			          {return handleCD($2);}
   | SETENV WORD WORD END              {return handleSETENV($2, $3);}
   | PRINTENV oRedB END        	      {return handlePRINTENV();}
@@ -46,7 +44,7 @@ cmd_line    :
   | ALIAS oRedB END     		          {return handleShowAlias();}
   | UNALIAS WORD END		              {return handleUnsetAlias($3);}
   | cmd pipCmds iRed oRed eRed amp END{return runCommandTable();}
-ESCAPE                                {YYACCEPT;}
+
 amp:
   | AMP                               {enableAmpersand();}
 

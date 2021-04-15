@@ -6,7 +6,7 @@
 #include <string.h>
 #include <string>
 
-bool first = false;
+bool first = true;
 char envString[100];
 
 void falsifyFirst(){
@@ -30,7 +30,10 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
 %%
 
 <string_condition>"${"              {BEGIN(envVarQuotes_condition);}
-<string_condition>[\"]              {BEGIN(INITIAL);yylval.string = strdup(envString);return WORD;}
+<string_condition>[\"]              {BEGIN(INITIAL);
+                                        yylval.string = strdup(envString);
+                                        return WORD;
+                                    }
 <string_condition>{ANYCHAR}+        { 
                                         first = false;
                                         strcat(envString, yytext);
@@ -45,18 +48,21 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                     }
 <envVarQuotes_condition>.           { }
 
-<envVar_condition>{CHAR}+           { 
+<envVar_condition>[ \t\r]               {}
+<envVar_condition>{ANYCHAR}+           { 
+                                        printf("in expansion text: %s\n", yytext);
                                         if(ifEnv(yytext)){
                                             char *yycopy = strdup(subEnv(yytext));
-                                                for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
-                                                    unput( yycopy[i] );
-                                                free(yycopy);
+                                            for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
+                                                unput( yycopy[i] );
+                                            free(yycopy);
+                                            BEGIN(INITIAL);
                                         }else{
-                                            yylval.string = strdup(yytext); 
-                                            return WORD; 
+                                            yylval.string = strdup(""); 
+                                            return WORD;
                                         };
                                     }
-<envVar_condition>[}]               {BEGIN(INITIAL);}
+<envVar_condition>[}]               { BEGIN(INITIAL);}
 
 <tilde_condition>[ \t\r]            {
                                         char* userDir = getenv("HOME");
@@ -76,13 +82,16 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         free(yycopy);
                                         BEGIN(INITIAL);
                                     }
-<tilde_condition>{TILDECHAR}+      {
+<tilde_condition>{TILDECHAR}+       {
+                                        printf("in here\n");
                                         struct passwd* userName;
                                         userName = getpwnam(strdup(yytext));
-                                        
                                         if (userName) {
-                                            yylval.string = strdup(userName->pw_dir);
-                                            BEGIN(INITIAL); return WORD;
+                                            char *yycopy = strdup(userName->pw_dir);
+                                            for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                                unput( yycopy[i] );
+                                            free(yycopy);
+                                            BEGIN(INITIAL);
                                         } else {
                                             yylval.string = strdup("NONEXISTING");
                                             BEGIN(INITIAL); return WORD;
@@ -94,13 +103,17 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         char* foundDir = autofillTilde(yytext);
                                         userName = getpwnam(strdup(foundDir));
                                         if (userName) {
-                                            yylval.string = strdup(userName->pw_dir);
-                                            BEGIN(INITIAL); return WORD;
+                                            char *yycopy = strdup(userName->pw_dir);
+                                            for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                                unput( yycopy[i] );
+                                            free(yycopy);
+                                            BEGIN(INITIAL);
                                         } else {
                                             yylval.string = strdup("NONEXISTING");
                                             BEGIN(INITIAL); return WORD;
                                         }
                                     }
+<tilde_condition>\/                 {BEGIN(INITIAL);}
 
 [ \t\r]		        { }
 bye                 { first = false; return BYE; }
@@ -112,7 +125,7 @@ alias               { first = false; return ALIAS; }
 unalias             { first = false; return UNALIAS; }
 \n		            { first = true; return END; }
 [\"]                { strcpy(envString, ""); BEGIN(string_condition); }
-"${"                { first = false; BEGIN(envVar_condition); }
+"${"                { printf("bool val: %d\n", first);BEGIN(envVar_condition); }
 "|"                 { first = false; return PIPE; }
 "2>"                { first = false; return ERR_GREATERTHAN; }
 "&1"                { first = false; return AMP1; }

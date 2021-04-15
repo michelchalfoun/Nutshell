@@ -27,7 +27,6 @@ int main()
     environment["PWD"] = cwd;
     environment["HOME"] = cwd;
     environment["PROMPT"] = dirs[dirs.size() - 1];
-    // environment["PATH"] = "."; //Default
     environment["PATH"] = ".:/bin:/usr/bin:/usr/local/bin";
     expandPathEnv();
 
@@ -36,7 +35,6 @@ int main()
     {
         getcwd(cwd, sizeof(cwd));
         environment["PWD"] = cwd;
-        
         dirs.clear();
         splitString(cwd, '/', dirs);
         environment["PROMPT"] = dirs[dirs.size() - 1];
