@@ -36,7 +36,8 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
     pid_t p1 = fork(), parentpid;
     if(p1 < 0)
     {
-        printf("%sError:%s Process could not be created to run system command %s.", RED, RESET, name.c_str());
+        string error = "Process could not be created to run system command";
+        yyerror((char *)error.c_str());
     }
     else if(p1 > 0)
     {
@@ -146,7 +147,8 @@ int handleCommandTableBG(){
     
     if(backgroundProcess < 0)
     {
-        printf("%sError:%s Process could not be created to run system command table.", RED, RESET);
+        string error = "Process could not be created to run system command table";
+        yyerror((char *)error.c_str());
     }
     else if(backgroundProcess == 0)
     { 

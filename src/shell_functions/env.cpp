@@ -8,7 +8,8 @@ int handleSETENV(string name, string value){
         }
         return 1;
     }else{
-        printf("%sError:%s Invalid input.", RED, RESET);
+        string error = "Invalid input";
+        yyerror((char *)error.c_str());
         return 1;
     }
 }
@@ -36,10 +37,16 @@ int handlePRINTENV(){
 
 int handleUNSETENV(string name){
     if (name.length() > 0){
-        environment.erase(name);
+        if (environment.find(name) != environment.end()){
+            environment.erase(name);
+        }else{
+            string error = "Environment variable not found";
+            yyerror((char *)error.c_str());
+        }
         return 1;
     }else{
-        printf("%sError:%s Invalid input.", RED, RESET);
+        string error = "Invalid input";
+        yyerror((char *)error.c_str());
         return 1;
     }
 }
