@@ -20,7 +20,6 @@ void falsifyFirst(){
 %x envVar_condition
 %x envVarQuotes_condition
 %x tilde_condition
-%x autofill_condition
 
 /* CHAR                [.A-Za-z0-9~!\?:\*\/_-]* */
 CHAR                [.A-Za-z0-9!\?:\*\/_-][.A-Za-z0-9!~\?:\*\/_-]*
@@ -50,7 +49,6 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
 
 <envVar_condition>[ \t\r]               {}
 <envVar_condition>{ANYCHAR}+           { 
-                                        printf("in expansion text: %s\n", yytext);
                                         if(ifEnv(yytext)){
                                             char *yycopy = strdup(subEnv(yytext));
                                             for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
@@ -83,7 +81,6 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         BEGIN(INITIAL);
                                     }
 <tilde_condition>{TILDECHAR}+       {
-                                        printf("in here\n");
                                         struct passwd* userName;
                                         userName = getpwnam(strdup(yytext));
                                         if (userName) {
@@ -125,7 +122,7 @@ alias               { first = false; return ALIAS; }
 unalias             { first = false; return UNALIAS; }
 \n		            { first = true; return END; }
 [\"]                { strcpy(envString, ""); BEGIN(string_condition); }
-"${"                { printf("bool val: %d\n", first);BEGIN(envVar_condition); }
+"${"                { BEGIN(envVar_condition); }
 "|"                 { first = false; return PIPE; }
 "2>"                { first = false; return ERR_GREATERTHAN; }
 "&1"                { first = false; return AMP1; }
