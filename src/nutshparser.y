@@ -51,30 +51,24 @@ amp:
 eRed:
   | ERR_GREATERTHAN WORD              {handleErrRed($2, false);}
   | ERR_GREATERTHAN AMP1              {handleErrRed($2, true);}
-
 iRed:
   | LESSTHAN WORD                     {handleInRed($2);}
-
 oRed:
   | GREATERTHAN WORD                  {handleOutRed($2, false);}
   | GREATERTHAN GREATERTHAN WORD      {handleOutRed($3, true);}
-
 oRedB:
   | GREATERTHAN WORD                  {handleOutRedB($2, false);}
   | GREATERTHAN GREATERTHAN WORD      {handleOutRedB($3, true);}
 
 pipCmds:
   | pipCmds pipCmd
-
 pipCmd:
   PIPE cmd
 
 cmd:
   | WORD args                         {handleCommands($1);}
-
 args:
   | args arg
-
 arg:
   WORD                                {handleArgs($1)}
 
