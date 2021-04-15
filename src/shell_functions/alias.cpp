@@ -50,7 +50,8 @@ int handleUnsetAlias(string name){
             return 1;
         }
     }
-    printf("%sError:%s %s alias not found.", RED, RESET, name.c_str());
+    string error = "Alias not found";
+    yyerror((char *)error.c_str());
     return 1;
 }
 

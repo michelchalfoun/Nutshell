@@ -10,6 +10,7 @@
 
 int yylex(void);
 int yyerror(char *s);
+int yylex_destroy(void);
 
 void unput(char);
 
@@ -88,5 +89,6 @@ int runCommandTable(){
 
 int yyerror(char *s) {
   fprintf(stderr, "%sError:%s %s.\n", RED, RESET, s);
-  return 0;
+  yylex_destroy();
+  return 1;
 }
