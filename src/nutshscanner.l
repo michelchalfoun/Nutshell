@@ -37,7 +37,8 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         first = false;
                                         strcat(envString, yytext);
                                     }
-<string_condition>.                 { }
+<string_condition>[[^{ANYCHAR}]+^\n] { printf("Syntax error.\n"); BEGIN(INITIAL);}
+<string_condition>\n                { printf("Syntax error.\n"); BEGIN(INITIAL); return END;}
 
 <envVarQuotes_condition>[}]         {BEGIN(string_condition);}
 <envVarQuotes_condition>{ANYCHAR}+  {
@@ -45,7 +46,7 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                             strcat(envString, strdup(subEnv(yytext)));
                                         };
                                     }
-<envVarQuotes_condition>.           { }
+<envVarQuotes_condition>.             {}
 
 <envVar_condition>[ \t\r]               {}
 <envVar_condition>{ANYCHAR}+           { 
@@ -61,6 +62,8 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         };
                                     }
 <envVar_condition>[}]               { BEGIN(INITIAL);}
+<envVar_condition>.                 { printf("Syntax error.\n"); BEGIN(INITIAL);}
+<envVar_condition>\n                { printf("Syntax error.\n"); BEGIN(INITIAL); return END;}
 
 <tilde_condition>[ \t\r]            {
                                         char* userDir = getenv("HOME");
@@ -111,6 +114,7 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         }
                                     }
 <tilde_condition>\/                 {BEGIN(INITIAL);}
+<tilde_condition>.                 { printf("Syntax error.\n"); BEGIN(INITIAL);}
 
 [ \t\r]		        { }
 bye                 { first = false; return BYE; }
@@ -151,5 +155,5 @@ unalias             { first = false; return UNALIAS; }
                             return WORD; 
                         };
                     }
-.                   { }
+[^{CHAR}+]                   { printf("Syntax error.\n");}
 %%
