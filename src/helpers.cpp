@@ -34,7 +34,7 @@ void expandPathEnv(){
 vector<string> getWildcardArgs(string arg){
     glob_t glob_result;
     memset(&glob_result, 0, sizeof(glob_result));
-    int return_value = glob(arg.c_str(), GLOB_DOOFFS, NULL, &glob_result);
+    int return_value = glob(arg.c_str(), GLOB_TILDE, NULL, &glob_result);
     vector<string> filenames;
     if(return_value != 0) {
         arg.erase(remove(arg.begin(), arg.end(), '*'), arg.end());
@@ -53,4 +53,5 @@ vector<string> getWildcardArgs(string arg){
 
 void printPrompt(){
     printf("%snUtShElL ❖%s %s%s ➤➤ %s", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
+    // printf("%snUtShElL ❖%s %s%s ➤➤ %s\n", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
 }

@@ -49,3 +49,6 @@ int handleOutRed(string name, bool append);
 int handleOutRedB(string name, bool append);
 int handleErrRed(string name, bool stdOutput);
 int handleErrRedB(string name, bool stdOutput);
+
+char* autofill(char* partialDir);
+char* autofillTilde(char* partialDir);

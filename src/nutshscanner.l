@@ -19,8 +19,12 @@ void falsifyFirst(){
 %x string_condition
 %x envVar_condition
 %x envVarQuotes_condition
+%x tilde_condition
+%x autofill_condition
 
-CHAR                [.A-Za-z0-9!\?:\*\/_-]*
+/* CHAR                [.A-Za-z0-9~!\?:\*\/_-]* */
+CHAR                [.A-Za-z0-9!\?:\*\/_-][.A-Za-z0-9!~\?:\*\/_-]*
+TILDECHAR           [.A-Za-z0-9!\?:\*_-]*
 ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
 
 %%
@@ -54,6 +58,51 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                     }
 <envVar_condition>[}]               {BEGIN(INITIAL);}
 
+<tilde_condition>[ \t\r]            {
+                                        char* userDir = getenv("HOME");
+                                        char *yycopy = strdup(userDir);
+                                        for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                            unput( yycopy[i] );
+                                        free(yycopy);
+                                        BEGIN(INITIAL);
+                                    }
+
+<tilde_condition>\n                 {
+                                        char* userDir = getenv("HOME");
+                                        char *yycopy = strdup(userDir);
+                                        strcat(yycopy, "\n");
+                                        for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                            unput( yycopy[i] );
+                                        free(yycopy);
+                                        BEGIN(INITIAL);
+                                    }
+<tilde_condition>{TILDECHAR}+      {
+                                        struct passwd* userName;
+                                        userName = getpwnam(strdup(yytext));
+                                        
+                                        if (userName) {
+                                            printf("user dir is: %s", userName->pw_dir);
+                                            yylval.string = strdup(userName->pw_dir);
+                                            BEGIN(INITIAL); return WORD;
+                                        } else {
+                                            yylval.string = strdup("NONEXISTING");
+                                            BEGIN(INITIAL); return WORD;
+                                        }
+                                    }
+<tilde_condition>{TILDECHAR}+\033   {
+                                        struct passwd* userName;
+                                        yytext[strlen(yytext) - 1] = '\0';
+                                        char* foundDir = autofillTilde(yytext);
+                                        userName = getpwnam(strdup(foundDir));
+                                        if (userName) {
+                                            yylval.string = strdup(userName->pw_dir);
+                                            BEGIN(INITIAL); return WORD;
+                                        } else {
+                                            yylval.string = strdup("NONEXISTING");
+                                            BEGIN(INITIAL); return WORD;
+                                        }
+                                    }
+
 [ \t\r]		        { }
 bye                 { first = false; return BYE; }
 cd		            { first = false; return CD;}
@@ -71,13 +120,22 @@ unalias             { first = false; return UNALIAS; }
 "&"                 { first = false; return AMP; }
 "<"                 { first = false; return LESSTHAN; }
 ">"                 { first = false; return GREATERTHAN; }
+"~"                 { BEGIN(tilde_condition); }
+{CHAR}+\033$         { 
+                        yytext[strlen(yytext) - 1] = '\0';
+                        char* foundDir = autofill(yytext);
+                        char *yycopy = strdup(foundDir);
+                        for ( int i = strlen(foundDir) - 1; i >= 0; --i )
+                            unput( yycopy[i] );
+                        free( yycopy );
+                    }
 {CHAR}+             { 
                         if(ifAlias(yytext) && first){
                             first = false;
                             char *yycopy = strdup( subAlias(yytext) );
-                                for ( int i = strlen(subAlias(yytext)) - 1; i >= 0; --i )
-                                    unput( yycopy[i] );
-                                free( yycopy );
+                            for ( int i = strlen(subAlias(yytext)) - 1; i >= 0; --i )
+                                unput( yycopy[i] );
+                            free( yycopy );
                         }else{
                             first = false;
                             yylval.string = strdup(yytext); 

@@ -40,7 +40,6 @@ int handleCDTilde(string user) {
     struct passwd* pwd;
     pwd = getpwnam(user.c_str());
     if (pwd) {
-        environment["PROMPT"] = pwd->pw_dir;
         chdir(pwd->pw_dir);
     } else {
         string error = "User not found";
@@ -48,4 +47,39 @@ int handleCDTilde(string user) {
     }
 
     return 1;
+}
+
+char* autofill(char* partialDir){
+    string fixedString = (string) partialDir + "*";
+    vector<string> dirs = getWildcardArgs(fixedString.c_str());
+    return (char *) dirs[0].c_str();
+}
+
+char* autofillTilde(char* partialDir){
+    vector<string> users;
+    while (true) {
+        errno = 0;
+        passwd* entry = getpwent();
+        if (!entry) {
+            if (errno) {
+                break;
+            }
+            break;
+        }
+        if (entry->pw_name[0] == '_'){
+        }else if (strcmp(entry->pw_name, "root") == 0){
+            break;
+        }else{
+            users.push_back(entry->pw_name);
+        }
+    }
+    endpwent();
+    users.erase(users.begin());
+    for (int i = 0; i < users.size(); i++){
+        if (users[i].rfind(partialDir, 0) != 0) {
+            users.erase(users.begin() + i);
+            i--;
+        }
+    }
+    return (char *) users[0].c_str();
 }
