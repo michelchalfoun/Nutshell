@@ -81,7 +81,6 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                         userName = getpwnam(strdup(yytext));
                                         
                                         if (userName) {
-                                            printf("user dir is: %s", userName->pw_dir);
                                             yylval.string = strdup(userName->pw_dir);
                                             BEGIN(INITIAL); return WORD;
                                         } else {
