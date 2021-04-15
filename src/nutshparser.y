@@ -11,28 +11,22 @@
 int yylex(void);
 int yyerror(char *s);
 int yylex_destroy(void);
-
 void unput(char);
 
 int runCommandTable();
 
-extern void scan_string(const char* str);
 %}
-
 %union {char *string;}
 %union {char *character;}
 %union {char *command;}
 
-
 %start cmd_line
-%token <string> BYE END STRING WORD ERR_GREATERTHAN AMP1 ERR
-%token <command> CD SETENV PRINTENV UNSETENV ALIAS UNALIAS  
-%token <character> TILDE PIPE LESSTHAN GREATERTHAN AMP ESCAPE
+%token <string> BYE END WORD ERR_GREATERTHAN AMP1
+%token <command> CD SETENV PRINTENV UNSETENV ALIAS UNALIAS
+%token <character> PIPE LESSTHAN GREATERTHAN AMP
 %error-verbose
 
 %%
-
-
 cmd_line    :
 	BYE END 		                        {return handleBYE(); }
   | CD END                            {return handleCDHome();}

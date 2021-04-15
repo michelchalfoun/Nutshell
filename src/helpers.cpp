@@ -53,5 +53,4 @@ vector<string> getWildcardArgs(string arg){
 
 void printPrompt(){
     printf("%snUtShElL ❖%s %s%s ➤➤ %s", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
-    // printf("%snUtShElL ❖%s %s%s ➤➤ %s\n", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
 }

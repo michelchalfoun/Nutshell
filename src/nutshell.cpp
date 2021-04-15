@@ -1,5 +1,4 @@
 #include "command_handling.h"
-
 using namespace std;
 
 map<string, string> environment;
@@ -30,7 +29,7 @@ int main()
     environment["PATH"] = ".:/bin:/usr/bin:/usr/local/bin";
     expandPathEnv();
 
-    // system("clear");
+    system("clear");
     while(1)
     {
         getcwd(cwd, sizeof(cwd));
