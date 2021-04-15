@@ -1,9 +1,16 @@
 #include "../command_handling.h"
 
 int handleCD(string newDir){
-    vector<string> dirs = getWildcardArgs(newDir);
+    vector<string> dirs;
+    if ((newDir.find("*") == string::npos) && (newDir.find("?") == string::npos)){
+        dirs.push_back(newDir);
+    }else{
+        dirs = getWildcardArgs(newDir);
+    }
+    
     if (dirs.size() > 1){
-        printf("%sError:%s Too many directories.\n", RED, RESET);
+        string error = "Too many directories";
+        yyerror((char *)error.c_str());
         return 1;
     }
     char arr[FILENAME_MAX];
@@ -16,9 +23,10 @@ int handleCD(string newDir){
 
     if(chdir(targetDir.c_str()) == 0) {
         return 1;
-		}
+	}
 	else {
-        printf("%sError:%s Directory not found.\n", RED, RESET);
+        string error = "Directory not found";
+        yyerror((char *)error.c_str());
         return 1;
 	}
 }
@@ -35,7 +43,8 @@ int handleCDTilde(string user) {
         environment["PROMPT"] = pwd->pw_dir;
         chdir(pwd->pw_dir);
     } else {
-        printf("%sError:%s User not found.\n", RED, RESET);
+        string error = "User not found";
+        yyerror((char *)error.c_str());
     }
 
     return 1;

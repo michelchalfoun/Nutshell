@@ -5,6 +5,10 @@ using namespace std;
 map<string, string> environment;
 map<string, string> aliases;
 
+bool outputRedirectionBuiltIn;
+string outputRedirectionBuiltInFilename;
+bool outputRedirectionBuiltInAppend;
+
 vector<string> curArgs;
 bool backgroundEnable = false;
 vector<CommandInfo> cmdTable;
@@ -36,7 +40,7 @@ int main()
         dirs.clear();
         splitString(cwd, '/', dirs);
         environment["PROMPT"] = dirs[dirs.size() - 1];
-        printf("%snUtShElL ❖%s %s%s ➤➤ %s", GREEN, RESET, BOLDCYAN, environment["PROMPT"].c_str(), RESET);
+        printPrompt();
         yyparse();
     }
 

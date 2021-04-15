@@ -12,8 +12,11 @@
 #include <cstring>
 #include <pwd.h>
 #include <fcntl.h>
+#include "../nutshparser.tab.h"
 
 using namespace std;
+
+int yyerror(char *s);
 
 int handleBYE();
 int enableAmpersand();
@@ -43,4 +46,6 @@ int handleCommands(string word);
 
 int handleInRed(string name);
 int handleOutRed(string name, bool append);
+int handleOutRedB(string name, bool append);
 int handleErrRed(string name, bool stdOutput);
+int handleErrRedB(string name, bool stdOutput);

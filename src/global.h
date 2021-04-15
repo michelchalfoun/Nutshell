@@ -9,6 +9,10 @@
 extern std::map<std::string, std::string> environment;
 extern std::map<std::string, std::string> aliases;
 
+extern bool outputRedirectionBuiltIn;
+extern std::string outputRedirectionBuiltInFilename;
+extern bool outputRedirectionBuiltInAppend;
+
 extern std::vector<std::string> curArgs;
 extern bool backgroundEnable;
 

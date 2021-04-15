@@ -11,6 +11,13 @@ int handleOutRed(string name, bool append){
     return 1;
 }
 
+int handleOutRedB(string name, bool append){
+    outputRedirectionBuiltIn = true;
+    outputRedirectionBuiltInFilename = name;
+    outputRedirectionBuiltInAppend = append;
+    return 1;
+}
+
 int handleErrRed(string name, bool stdOutput){
     if (stdOutput){
         cmdTable[cmdTable.size() - 1].errOutput = "&1";

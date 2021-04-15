@@ -2,7 +2,7 @@
 #include "../helpers.h"
 
 int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, string inputFile, string outputFile, bool append, string errOutput){
-    pid_t p1 = fork(), parentpid;
+    
     int status = 0;
     int execRes = 0;
 
@@ -33,10 +33,11 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
     
     // Split up paths to know where to find command executables
     splitString(environment["PATH"], ':', paths);
-
+    pid_t p1 = fork(), parentpid;
     if(p1 < 0)
     {
-        printf("%sError:%s Process could not be created to run system command %s.", RED, RESET, name.c_str());
+        string error = "Process could not be created to run system command";
+        yyerror((char *)error.c_str());
     }
     else if(p1 > 0)
     {
@@ -109,7 +110,9 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         for (int i = 0; i < paths.size(); i++){
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
         }
-        printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
+        // printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
+        string error = "Command " + name + " not found";
+        yyerror((char *)error.c_str());
         exit(0);
     }
     return 1;
@@ -121,8 +124,6 @@ int handleCommandTable(){
     // }
     if (cmdTable.size() == 1){
         handleCommand(cmdTable[0].name, cmdTable[0].args, cmdTable[0].in != "", cmdTable[0].out != "", cmdTable[0].in, cmdTable[0].out, cmdTable[0].appendOutput, cmdTable[0].errOutput);
-        // cmdTable.clear();
-        // return 1;
     }else{
         for (int i = 0; i < cmdTable.size(); i++){
             if (((i - 1) >= 0) && ((i + 1) < cmdTable.size())){ // Middle
@@ -141,26 +142,25 @@ int handleCommandTable(){
 }
 
 int handleCommandTableBG(){
-    // int backgroundStatus = 0;
-    // printf("bg: %d\n", backgroundEnable);
+
     pid_t backgroundProcess = fork();
     
     if(backgroundProcess < 0)
     {
-        printf("%sError:%s Process could not be created to run system command table.", RED, RESET);
+        string error = "Process could not be created to run system command table";
+        yyerror((char *)error.c_str());
     }
     else if(backgroundProcess == 0)
     { 
         handleCommandTable();
-        printf("\n[1] %d is done.\n", backgroundProcess);
-        // fflush(nullptr);
-        // exit(0);
-        // return 1;
+        printf("\nBackground process is done.\n");
+        printPrompt();
+        exit(0);
     }else
     {
-        printf("[1] %d\n", backgroundProcess);
-        // fflush(nullptr);
-        // return 1;
+        printf("Parent process is %d.\n", backgroundProcess);
     }
+    cmdTable.clear();
+    backgroundEnable = false;
     return 1;
 }
