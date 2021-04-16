@@ -36,19 +36,6 @@ int handleCDHome() {
     return 1;
 }
 
-int handleCDTilde(string user) {
-    struct passwd* pwd;
-    pwd = getpwnam(user.c_str());
-    if (pwd) {
-        chdir(pwd->pw_dir);
-    } else {
-        string error = "User not found";
-        yyerror((char *)error.c_str());
-    }
-
-    return 1;
-}
-
 char* autofill(char* partialDir){
     string fixedString = (string) partialDir + "*";
     vector<string> dirs = getWildcardArgs(fixedString.c_str());
@@ -58,12 +45,8 @@ char* autofill(char* partialDir){
 char* autofillTilde(char* partialDir){
     vector<string> users;
     while (true) {
-        errno = 0;
         passwd* entry = getpwent();
         if (!entry) {
-            if (errno) {
-                break;
-            }
             break;
         }
         if (entry->pw_name[0] == '_'){
@@ -75,11 +58,15 @@ char* autofillTilde(char* partialDir){
     }
     endpwent();
     users.erase(users.begin());
+    vector<string> newUsers;
     for (int i = 0; i < users.size(); i++){
-        if (users[i].rfind(partialDir, 0) != 0) {
-            users.erase(users.begin() + i);
-            i--;
+        if (users[i].rfind(partialDir, 0) == 0) {
+            newUsers.push_back(users[i]);
         }
     }
-    return (char *) users[0].c_str();
+    if (newUsers.size() > 0){
+        char* userName = getpwnam(newUsers[0].c_str())->pw_dir;
+        return userName;
+    }
+    return nullptr;
 }

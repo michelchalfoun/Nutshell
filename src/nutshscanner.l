@@ -98,9 +98,8 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                                 struct passwd* userName;
                                                 yytext[strlen(yytext) - 1] = '\0';
                                                 char* foundDir = autofillTilde(yytext);
-                                                userName = getpwnam(strdup(foundDir));
-                                                if (userName) {
-                                                    char *yycopy = strdup(userName->pw_dir);
+                                                if (foundDir != nullptr) {
+                                                    char *yycopy = strdup(foundDir);
                                                     for ( int i = strlen(yycopy) - 1; i >= 0; --i )
                                                         unput( yycopy[i] );
                                                     free(yycopy);
