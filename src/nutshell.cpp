@@ -24,6 +24,7 @@ int main()
     splitString(cwd, '/', dirs);
 
     environment["PWD"] = cwd;
+    // environment["HOME"] = cwd;
     environment["HOME"] = getenv("HOME");
     environment["PROMPT"] = dirs[dirs.size() - 1];
     environment["PATH"] = ".:/bin:/usr/bin:/usr/local/bin";
