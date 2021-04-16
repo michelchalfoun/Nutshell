@@ -3,35 +3,39 @@
 This README is for the Nutshell Project for COP 4600 - Spring 2021.
 ***
 ## Running the Nutshell
-Run `make` in the terminal, making sure you're inside the directory with the source files and Makefile. Then run `./nutshell` to start up the Nutshell. If you would like to exit out of the Nutshell simply run the `bye` command.
+Run `make` in the terminal, making sure you're inside the `Nutshell` directory where the Makefile resides. Then run `./nutshell` to start up the Nutshell. If you would like to exit out of the Nutshell simply run the `bye` command.
+**PS:** When it comes to the features that involve different users, our computers sometimes required admin permissions (`sudo`) when executing. This is highly dependent on the computer on which t
 ***
 ## Features not implemented
-We currrently have all the features implemented!
+We have all the features implemented.
 ***
 ## Features implemented
 Here is a list of features we weren't able to implement:
-- Words
-  - Handles words, white space, dots, tilde and metacharacter
+- Parsing and Characters
+  - Handles words, white space, dots, tildes and metacharacters
 - Built-in Commands
-  - setenv - getenv - printenv
+  - setenv variable word - unsetenv variable - printenv
   - HOME and PATH environment variables
   - cd word
-  - alias - unalias - alias name word
+  - alias - unalias name - alias name word
   - bye
 - Other Commands/Features
-    - I/O redirection
+    - I/O redirection (Input, Output (Overwrite and Append), Error)
     - Piping
+    - Background process
     - Wildcard matching
 - Extra Credit
-    - Tilde Expansion
-    - File Name Completion
+    - Tilde Expansion (Standalone and Username)
+    - File Name Completion (Filenames, directories and users)
 ***
 ## Contributions
 ##### Michel El Chalfoun
-Worked on coding the inputs in the **word section**, **other commands including** I/O redirection, piping, wildcard matching, and the **extra credit**. 
+Worked on developing the parser logic in lex, other (system) commands handling with I/O redirection for input output and error, piping, wildcard matching, and the extra credit sections.
+Files: command_table.cpp, commands.cpp, io_redirection.cpp, nutshell.cpp, global.h, nutshparser.l, nutshparser.y, Makefile, README
 
 ##### Masen Beliveau
-Worked on coding **built-in commands section**, mainly implementing env (set, get, print), HOME and PATH variables, cd word, and alias.
+Worked on coding built-in commands section, mainly implementing env (set, get, print), HOME and PATH variables, cd word, and alias. Also implemented yacc logic. 
+Files: alias.cpp, cd.cpp, env.cpp, nutshparser.l, nutshparser.y, helpers.cpp, exit.cpp, background.cpp, README
 
 Both Michel and Masen worked on error handling, where Michel focused on handling errors before they happened, and Masen focusing on running through the sample test commands and debugging any errors that arised, while both still overlapped across the two.
 
