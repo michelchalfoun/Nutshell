@@ -37,8 +37,11 @@ int handleCDHome() {
 }
 
 char* autofill(char* partialDir){
-    string fixedString = (string) partialDir + "*";
+    string fixedString = (string) partialDir + "**";
     vector<string> dirs = getWildcardArgs(fixedString.c_str());
+    if (dirs.size() > 1){
+        return nullptr;
+    }
     return (char *) dirs[0].c_str();
 }
 

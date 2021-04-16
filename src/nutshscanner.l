@@ -141,10 +141,16 @@ unalias             { first = false; return UNALIAS; }
 {CHAR}+\033$        { 
                         yytext[strlen(yytext) - 1] = '\0';
                         char* foundDir = autofill(yytext);
-                        char *yycopy = strdup(foundDir);
-                        for ( int i = strlen(foundDir) - 1; i >= 0; --i )
-                            unput( yycopy[i] );
-                        free( yycopy );
+                        if (foundDir != nullptr){
+                            char *yycopy = strdup(foundDir);
+                            for ( int i = strlen(foundDir) - 1; i >= 0; --i )
+                                unput( yycopy[i] );
+                            free( yycopy );
+                        }else{
+                            yylval.string = "NONEXISTANT"; 
+                            return WORD;
+                        }
+                        
                     }
 {CHAR}+             { 
                         if(ifAlias(yytext) && first){
