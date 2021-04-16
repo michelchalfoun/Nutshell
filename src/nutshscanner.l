@@ -147,7 +147,9 @@ unalias             { first = false; return UNALIAS; }
                                 unput( yycopy[i] );
                             free( yycopy );
                         }else{
-                            yylval.string = "NONEXISTANT"; 
+                            char error[15];
+                            strcpy(error, "NONEXISTANT");
+                            yylval.string = error; 
                             return WORD;
                         }
                         
