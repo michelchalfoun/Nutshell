@@ -129,6 +129,14 @@ unalias             { first = false; return UNALIAS; }
 "&"                 { first = false; return AMP; }
 "<"                 { first = false; return LESSTHAN; }
 ">"                 { first = false; return GREATERTHAN; }
+"~/"                { 
+                        char* userDir = getenv("HOME");
+                        char *yycopy = strdup(userDir);
+                        strcat(yycopy, "/");
+                        for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                            unput( yycopy[i] );
+                        free(yycopy);
+                        BEGIN(INITIAL); }
 "~"                 { BEGIN(tilde_condition); }
 {CHAR}+\033$        { 
                         yytext[strlen(yytext) - 1] = '\0';
