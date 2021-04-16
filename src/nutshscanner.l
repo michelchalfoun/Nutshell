@@ -54,8 +54,6 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
                                                         unput( yycopy[i] );
                                                     free(yycopy);
                                                     BEGIN(INITIAL);
-                                                    // yylval.string = strdup(subEnv(yytext)); 
-                                                    // return WORD;
                                                 }else{
                                                     yylval.string = strdup(""); 
                                                     return WORD;
