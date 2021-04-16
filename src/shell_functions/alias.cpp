@@ -1,6 +1,7 @@
 #include "../command_handling.h"
 
 int handleSetAlias(string name, string value){
+    // Infinite loop check
     if (name == value){
         string error = "Expansion of " + name + " would create an infinite loop";
         yyerror((char *)error.c_str());
@@ -16,6 +17,7 @@ int handleSetAlias(string name, string value){
         }
         foundAlias = aliases.find(foundAlias->second);
     }
+    // Assignment
     if ((name.length() > 0) && (value.length() > 0)){
         aliases[name] = value;
     }

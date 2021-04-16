@@ -1,5 +1,4 @@
 #include "command_handling.h"
-
 using namespace std;
 
 map<string, string> environment;
@@ -25,18 +24,17 @@ int main()
     splitString(cwd, '/', dirs);
 
     environment["PWD"] = cwd;
-    environment["HOME"] = cwd;
+    // environment["HOME"] = cwd;
+    environment["HOME"] = getenv("HOME");
     environment["PROMPT"] = dirs[dirs.size() - 1];
-    // environment["PATH"] = "."; //Default
     environment["PATH"] = ".:/bin:/usr/bin:/usr/local/bin";
     expandPathEnv();
 
-    // system("clear");
+    system("clear");
     while(1)
     {
         getcwd(cwd, sizeof(cwd));
         environment["PWD"] = cwd;
-        
         dirs.clear();
         splitString(cwd, '/', dirs);
         environment["PROMPT"] = dirs[dirs.size() - 1];
@@ -44,5 +42,5 @@ int main()
         yyparse();
     }
 
-   return 0;
+    return 0;
 }

@@ -6,7 +6,7 @@
 #include <string.h>
 #include <string>
 
-bool first = false;
+bool first = true;
 char envString[100];
 
 void falsifyFirst(){
@@ -20,7 +20,6 @@ void falsifyFirst(){
 %x envVar_condition
 %x envVarQuotes_condition
 %x tilde_condition
-%x autofill_condition
 
 /* CHAR                [.A-Za-z0-9~!\?:\*\/_-]* */
 CHAR                [.A-Za-z0-9!\?:\*\/_-][.A-Za-z0-9!~\?:\*\/_-]*
@@ -29,78 +28,89 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
 
 %%
 
-<string_condition>"${"              {BEGIN(envVarQuotes_condition);}
-<string_condition>[\"]              {BEGIN(INITIAL);yylval.string = strdup(envString);return WORD;}
-<string_condition>{ANYCHAR}+        { 
-                                        first = false;
-                                        strcat(envString, yytext);
-                                    }
-<string_condition>.                 { }
+<string_condition>"${"                      { BEGIN(envVarQuotes_condition); }
+<string_condition>[\"]                      {   
+                                                BEGIN(INITIAL);
+                                                yylval.string = strdup(envString);
+                                                return WORD;
+                                            }
+<string_condition>{ANYCHAR}+                { first = false; strcat(envString, yytext); }
+<string_condition>[[^{ANYCHAR}]+^\n]        { printf("Syntax error.\n"); BEGIN(INITIAL); }
+<string_condition>\n                        { printf("Syntax error.\n"); BEGIN(INITIAL); return END; }
 
-<envVarQuotes_condition>[}]         {BEGIN(string_condition);}
-<envVarQuotes_condition>{ANYCHAR}+  {
-                                        if(ifEnv(yytext)){
-                                            strcat(envString, strdup(subEnv(yytext)));
-                                        };
-                                    }
-<envVarQuotes_condition>.           { }
+<envVarQuotes_condition>[}]                 { BEGIN(string_condition); }
+<envVarQuotes_condition>{ANYCHAR}+          {
+                                                if(ifEnv(yytext)){
+                                                    strcat(envString, strdup(subEnv(yytext)));
+                                                };
+                                            }
+<envVarQuotes_condition>.                   {}
 
-<envVar_condition>{CHAR}+           { 
-                                        if(ifEnv(yytext)){
-                                            char *yycopy = strdup(subEnv(yytext));
-                                                for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
+<envVar_condition>[ \t\r]                   {}
+<envVar_condition>{ANYCHAR}+                { 
+                                                if(ifEnv(yytext)){
+                                                    char *yycopy = strdup(subEnv(yytext));
+                                                    for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
+                                                        unput( yycopy[i] );
+                                                    free(yycopy);
+                                                    BEGIN(INITIAL);
+                                                }else{
+                                                    yylval.string = strdup(""); 
+                                                    return WORD;
+                                                };
+                                            }
+<envVar_condition>[}]                       { BEGIN(INITIAL); }
+<envVar_condition>.                         { printf("Syntax error.\n"); BEGIN(INITIAL); }
+<envVar_condition>\n                        { printf("Syntax error.\n"); BEGIN(INITIAL); return END; }
+
+<tilde_condition>[ \t\r]                    {
+                                                char* userDir = getenv("HOME");
+                                                char *yycopy = strdup(userDir);
+                                                for ( int i = strlen(yycopy) - 1; i >= 0; --i )
                                                     unput( yycopy[i] );
                                                 free(yycopy);
-                                        }else{
-                                            yylval.string = strdup(yytext); 
-                                            return WORD; 
-                                        };
-                                    }
-<envVar_condition>[}]               {BEGIN(INITIAL);}
-
-<tilde_condition>[ \t\r]            {
-                                        char* userDir = getenv("HOME");
-                                        char *yycopy = strdup(userDir);
-                                        for ( int i = strlen(yycopy) - 1; i >= 0; --i )
-                                            unput( yycopy[i] );
-                                        free(yycopy);
-                                        BEGIN(INITIAL);
-                                    }
-
-<tilde_condition>\n                 {
-                                        char* userDir = getenv("HOME");
-                                        char *yycopy = strdup(userDir);
-                                        strcat(yycopy, "\n");
-                                        for ( int i = strlen(yycopy) - 1; i >= 0; --i )
-                                            unput( yycopy[i] );
-                                        free(yycopy);
-                                        BEGIN(INITIAL);
-                                    }
-<tilde_condition>{TILDECHAR}+      {
-                                        struct passwd* userName;
-                                        userName = getpwnam(strdup(yytext));
-                                        
-                                        if (userName) {
-                                            yylval.string = strdup(userName->pw_dir);
-                                            BEGIN(INITIAL); return WORD;
-                                        } else {
-                                            yylval.string = strdup("NONEXISTING");
-                                            BEGIN(INITIAL); return WORD;
-                                        }
-                                    }
-<tilde_condition>{TILDECHAR}+\033   {
-                                        struct passwd* userName;
-                                        yytext[strlen(yytext) - 1] = '\0';
-                                        char* foundDir = autofillTilde(yytext);
-                                        userName = getpwnam(strdup(foundDir));
-                                        if (userName) {
-                                            yylval.string = strdup(userName->pw_dir);
-                                            BEGIN(INITIAL); return WORD;
-                                        } else {
-                                            yylval.string = strdup("NONEXISTING");
-                                            BEGIN(INITIAL); return WORD;
-                                        }
-                                    }
+                                                BEGIN(INITIAL);
+                                            }
+<tilde_condition>\n                         {
+                                                char* userDir = getenv("HOME");
+                                                char *yycopy = strdup(userDir);
+                                                strcat(yycopy, "\n");
+                                                for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                                    unput( yycopy[i] );
+                                                free(yycopy);
+                                                BEGIN(INITIAL);
+                                            }
+<tilde_condition>{TILDECHAR}+               {
+                                                struct passwd* userName;
+                                                userName = getpwnam(strdup(yytext));
+                                                if (userName) {
+                                                    char *yycopy = strdup(userName->pw_dir);
+                                                    for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                                        unput( yycopy[i] );
+                                                    free(yycopy);
+                                                    BEGIN(INITIAL);
+                                                } else {
+                                                    yylval.string = strdup("NONEXISTING");
+                                                    BEGIN(INITIAL); return WORD;
+                                                }
+                                            }
+<tilde_condition>{TILDECHAR}+\033           {
+                                                struct passwd* userName;
+                                                yytext[strlen(yytext) - 1] = '\0';
+                                                char* foundDir = autofillTilde(yytext);
+                                                if (foundDir != nullptr) {
+                                                    char *yycopy = strdup(foundDir);
+                                                    for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                                                        unput( yycopy[i] );
+                                                    free(yycopy);
+                                                    BEGIN(INITIAL);
+                                                } else {
+                                                    yylval.string = strdup("NONEXISTING");
+                                                    BEGIN(INITIAL); return WORD;
+                                                }
+                                            }
+<tilde_condition>\/                         { BEGIN(INITIAL); }
+<tilde_condition>.                          { printf("Syntax error.\n"); BEGIN(INITIAL);}
 
 [ \t\r]		        { }
 bye                 { first = false; return BYE; }
@@ -112,21 +122,35 @@ alias               { first = false; return ALIAS; }
 unalias             { first = false; return UNALIAS; }
 \n		            { first = true; return END; }
 [\"]                { strcpy(envString, ""); BEGIN(string_condition); }
-"${"                { first = false; BEGIN(envVar_condition); }
+"${"                { BEGIN(envVar_condition); }
 "|"                 { first = false; return PIPE; }
 "2>"                { first = false; return ERR_GREATERTHAN; }
 "&1"                { first = false; return AMP1; }
 "&"                 { first = false; return AMP; }
 "<"                 { first = false; return LESSTHAN; }
 ">"                 { first = false; return GREATERTHAN; }
+"~/"                { 
+                        char* userDir = getenv("HOME");
+                        char *yycopy = strdup(userDir);
+                        strcat(yycopy, "/");
+                        for ( int i = strlen(yycopy) - 1; i >= 0; --i )
+                            unput( yycopy[i] );
+                        free(yycopy);
+                        BEGIN(INITIAL); }
 "~"                 { BEGIN(tilde_condition); }
-{CHAR}+\033$         { 
+{CHAR}+\033$        { 
                         yytext[strlen(yytext) - 1] = '\0';
                         char* foundDir = autofill(yytext);
-                        char *yycopy = strdup(foundDir);
-                        for ( int i = strlen(foundDir) - 1; i >= 0; --i )
-                            unput( yycopy[i] );
-                        free( yycopy );
+                        if (foundDir != nullptr){
+                            char *yycopy = strdup(foundDir);
+                            for ( int i = strlen(foundDir) - 1; i >= 0; --i )
+                                unput( yycopy[i] );
+                            free( yycopy );
+                        }else{
+                            yylval.string = "NONEXISTANT"; 
+                            return WORD;
+                        }
+                        
                     }
 {CHAR}+             { 
                         if(ifAlias(yytext) && first){
@@ -141,5 +165,5 @@ unalias             { first = false; return UNALIAS; }
                             return WORD; 
                         };
                     }
-.                   { }
+[^{CHAR}+]          { printf("Syntax error.\n"); }
 %%

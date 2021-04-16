@@ -70,25 +70,19 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
         }else{
             writePermission = append ? "a" : "w";
         }
-        
-        if (errOutput.length() != 0){
-            if (errOutput == "&1"){
-                dup2(1, 2);
-            }else{
-                FILE* errTempFile = fopen(errOutput.c_str(), "w");
-                int errTempPipe = fileno(errTempFile);
-                dup2(errTempPipe, 2);
-                fclose(errTempFile);
-            }
-        }
+
+        int possibleErrOutput = 0;
 
         if (pipeIn && pipeOut){
-            
             if (tempInput == tempOutput){
                 FILE* inTempFile = fopen(tempInput.c_str(), ("r" + writePermission).c_str());
                 inTempPipe = fileno(inTempFile);
+                outTempPipe = fileno(inTempFile);
                 dup2(inTempPipe, 0);
                 dup2(inTempPipe, 1);
+                if (errOutput == "&1"){
+                    dup2(inTempPipe, 2);
+                }
                 fclose(inTempFile);
             }else{
                 FILE* inTempFile = fopen(tempInput.c_str(), "r");
@@ -97,6 +91,9 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
                 outTempPipe = fileno(outTempFile);
                 dup2(inTempPipe, 0);
                 dup2(outTempPipe, 1);
+                if (errOutput == "&1"){
+                    dup2(outTempPipe, 2);
+                }
                 fclose(inTempFile);
                 fclose(outTempFile);
             }
@@ -109,12 +106,20 @@ int handleCommand(string name, vector<string> args, bool pipeIn, bool pipeOut, s
             FILE* tempFile = fopen(tempOutput.c_str(), writePermission.c_str());
             outTempPipe = fileno(tempFile);
             dup2(outTempPipe, 1);
+            if (errOutput == "&1"){
+                dup2(outTempPipe, 2);
+            }
             fclose(tempFile);
         }
+        if ((errOutput.length() > 0) && (errOutput != "&1")){
+            FILE* errTempFile = fopen(tempInput.c_str(), "w");
+            int errTempPipe = fileno(errTempFile);
+            dup2(errTempPipe, 2);
+        }
+
         for (int i = 0; i < paths.size(); i++){
             execRes = execv((paths[i] + "/" + name).c_str(), argArray);
         }
-        // printf("%sError:%s Command %s not found.\n", RED, RESET, name.c_str());
         string error = "Command " + name + " not found";
         yyerror((char *)error.c_str());
         exit(0);
@@ -151,7 +156,6 @@ int handleCommandTable(){
     for (auto i : tempPipeNames) {
         remove(i.c_str());
     }
-    // remove("tempPipe");
     cmdTable.clear();
     backgroundEnable = false;
     return 1;
@@ -169,12 +173,10 @@ int handleCommandTableBG(){
     else if(backgroundProcess == 0)
     { 
         handleCommandTable();
-        printf("\nBackground process is done.\n");
         printPrompt();
         exit(0);
     }else
     {
-        printf("Parent process is %d.\n", backgroundProcess);
     }
     cmdTable.clear();
     backgroundEnable = false;
