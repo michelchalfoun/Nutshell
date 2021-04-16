@@ -49,7 +49,6 @@ ANYCHAR             [a-zA-Z\/.0-9\-&*.?:\;\'\<\>\, ~`_=\+\[\]@#%()\^]
 <envVar_condition>[ \t\r]                   {}
 <envVar_condition>{ANYCHAR}+                { 
                                                 if(ifEnv(yytext)){
-                                                    printf("%s\n", subEnv(yytext));
                                                     yylval.string = strdup(subEnv(yytext)); 
                                                     return WORD;
                                                 }else{
