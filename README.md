@@ -7,7 +7,7 @@ Run `make` in the terminal, making sure you're inside the `Nutshell` directory w
 **PS:** When it comes to the features that involve different users, our computers sometimes required admin permissions (`sudo`) when executing. This is highly dependent on the computer on which the Nutshell is running on. However, this can be circumvented by running `sudo ./nutshell`, giving all admin permissions to the Nutshell.
 ***
 ## Features implemented
-Here is a list of features we weren't able to implement:
+Here is a list of features we were able to implement:
 - Parsing and Characters
   - Handles words, white space, dots, tildes and metacharacters
 - Built-in Commands
